@@ -8,6 +8,7 @@
 #include "Neuron.h"
 #include "FileReader.h"
 #include "NetworkConfigurator.h"
+#include "MappingConfigurator.h"
 
 int run(
 	int cycles, 
@@ -19,7 +20,7 @@ int run(
 
 bool sortbysec(const std::tuple<int, int>& a, const std::tuple<int, int>& b);
 
-void connectInputs(std::vector<Neuron>& inputLayer, bool inputs[], std::vector<std::tuple<int, int, int>> inputMap);
+void connectInputs(bool inputs[], std::vector<Neuron>& inputLayer, std::vector<std::tuple<int, int, int>> inputMap);
 
 void connectLayers(std::vector<Neuron>& firstLayer, std::vector<Neuron>& secondLayer, std::vector<std::tuple<int, int, int>> layerMap);
 

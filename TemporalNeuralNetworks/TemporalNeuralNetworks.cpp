@@ -7,21 +7,54 @@ const std::string INDENT = "    ";
 
 int main()
 {
-    FileReader networkConfigFile("network_config.txt");
-
     std::cout << "Reading Network Configuration \n";
-    NetworkConfigurator networkConfig(networkConfigFile);
+    NetworkConfigurator networkConfig("network_config.txt");
 
     std::cout << "Creating network layers \n\n";
-    std::vector<std::vector<Neuron>> layers = networkConfig.createLayers(networkConfigFile);
-
-    networkConfigFile.closeFile();
+    std::vector<std::vector<Neuron>> layers = networkConfig.createLayers();
 
     // Output to console what Integrate and Fire type is used
     std::cout << "Network Configuration: \n";
     std::cout << INDENT << "Number of Inputs: " << networkConfig.getNumInputs() << "\n";
-    std::cout << INDENT << "Number of Layers:" << networkConfig.getNumLayers() << " \n";
+    std::cout << INDENT << "Number of Layers: " << networkConfig.getNumLayers() << " \n";
     std::cout << INDENT << "IF Type: " << networkConfig.getIFType() << "\n\n";
+
+    std::cout << "Reading Mapping Configuration \n\n";
+    MappingConfigurator mappingConfig("mapping_config.txt");
+
+    std::vector<std::tuple<int, int, int>> inputMap;
+
+    std::cout << "Creating input map \n\n";
+    try {
+        inputMap = mappingConfig.createInputMap();
+    }
+    catch (std::runtime_error& e) {
+        std::cout << e.what();
+        return 1;
+    }
+
+    std::cout << "Input Mapping: \n";
+    for (size_t i = 0; i < inputMap.size(); ++i) {
+        std::cout << INDENT << "Input: " << std::get<0>(inputMap[i]) << ", Network: " << std::get<1>(inputMap[i]) << ", Weight: " << std::get<2>(inputMap[i]) << "\n";
+    }
+    std::cout << "\n";
+
+    std::vector<std::tuple<int, int, int>> layerMap;
+
+    std::cout << "Creating layer map \n\n";
+    try {
+        layerMap = mappingConfig.createLayerMap();
+    }
+    catch (std::runtime_error& e) {
+        std::cout << e.what();
+        return 1;
+    }
+
+    std::cout << "Layer Mapping: \n";
+    for (size_t i = 0; i < layerMap.size(); ++i) {
+        std::cout << INDENT << "Layer 0: " << std::get<0>(layerMap[i]) << ", Layer 1: " << std::get<1>(layerMap[i]) << ", Weight: " << std::get<2>(layerMap[i]) << "\n";
+    }
+    std::cout << "\n";
 
     // Vector for spikes
     std::vector<std::tuple<int, int>> spikes;
@@ -44,24 +77,6 @@ int main()
 
     std::cout << "Created Inputs \n";
 
-    // Map system inputs to neuron(s)
-    // Order: input #, neuron input #, weight
-    std::vector<std::tuple<int, int, int>> inputMap;
-
-    inputMap.push_back(std::make_tuple(0, 0, 4));
-    inputMap.push_back(std::make_tuple(3, 1, 2));
-    inputMap.push_back(std::make_tuple(2, 2, 1));
-    inputMap.push_back(std::make_tuple(1, 3, 1));
-
-    // Map first layer neuron outputs to second layer neuron inputs. Adjust later for more than two layers.
-    // Order: first layer neuron #, second layer neuron input #, weight
-    std::vector<std::tuple<int, int, int>> layerMap;
-
-    layerMap.push_back(std::make_tuple(0, 0, 4));
-
-    std::cout << "Created Input Mapping \n";
-    std::cout << "\n";
-
     int output = run(15, layers, inputs, inputMap, layerMap, spikes);
     if (output > 0) {
         std::cout << "Output spike generated at time " << output << "\n\n";
@@ -72,7 +87,6 @@ int main()
     std::cout << "Final body potential of neuron 1A: " << layers[0][0].currentBodyPotential() << "\n";
     std::cout << "Final body potential of neuron 2A: " << layers[1][0].currentBodyPotential() << "\n";
     //std::cout << "Neuron input 0 spike: " << neuron.inputs[0]->getSpike() << "\n";
-    std::cout << "End of program \n";
 
     // Delete dynamically allocated array for inputs
     delete[] inputs;
@@ -91,7 +105,7 @@ int run(
     int outputTime = 0;
 
     std::cout << "Connecting inputs \n";
-    connectInputs(layers[0], inputs, inputMap);
+    connectInputs(inputs, layers[0], inputMap);
 
     std::cout << "Connecting layers \n";
     // layers[1][0].overwriteInput(0, 4, &(layers[0][0].output));
@@ -153,7 +167,7 @@ bool sortbysec(const std::tuple<int, int>& a, const std::tuple<int, int>& b)
     return (std::get<1>(a) < std::get<1>(b));
 }
 
-void connectInputs(std::vector<Neuron>& inputLayer, bool inputs[], std::vector<std::tuple<int, int, int>> inputMap)
+void connectInputs(bool inputs[], std::vector<Neuron>& inputLayer, std::vector<std::tuple<int, int, int>> inputMap)
 {
     for (auto mapping : inputMap) {
         int inputIndex = std::get<0>(mapping);

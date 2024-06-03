@@ -1,15 +1,15 @@
 #include "NetworkConfigurator.h"
 
-NetworkConfigurator::NetworkConfigurator(FileReader& networkConfig)
+NetworkConfigurator::NetworkConfigurator(std::string networkConfig) : networkConfig_(FileReader::FileReader(networkConfig))
 {
     //First line of the network_config.txt must be "Network Config:"
-    std::string firstLine = networkConfig.readNextLine();
+    std::string firstLine = networkConfig_.readNextLine();
     if (firstLine.empty() || firstLine != "Network Config:") {
         throw std::runtime_error("Network configuration failed, file passed to NetworkConfigurator is not a network configuration. Make sure the first line of the text file says 'Network Config:'");
     }
 
-    while (networkConfig.isNextLine()) {
-        std::vector<std::string> nextLine = networkConfig.readNextLineSplit(" ");
+    while (networkConfig_.isNextLine()) {
+        std::vector<std::string> nextLine = networkConfig_.readNextLineSplit(" ");
         if (!nextLine.empty()) {
             configHandler(nextLine);
         }
@@ -50,17 +50,17 @@ void NetworkConfigurator::setIFType(int ifType)
     this->ifType = ifType;
 }
 
-std::vector<std::vector<Neuron>> NetworkConfigurator::createLayers(FileReader& networkConfig)
+std::vector<std::vector<Neuron>> NetworkConfigurator::createLayers()
 {
     std::vector<std::vector<Neuron>> res;
     
     //int counter = 0;
 
-    while (networkConfig.isNextLine()) {
-        std::vector<std::string> nextLine = networkConfig.readNextLineSplit(" ");
+    while (networkConfig_.isNextLine()) {
+        std::vector<std::string> nextLine = networkConfig_.readNextLineSplit(" ");
         if (!nextLine.empty()) {
             //std::cout << "Creating layer " << counter << " \n";
-            std::vector<Neuron> v = layerHandler(nextLine, networkConfig);
+            std::vector<Neuron> v = layerHandler(nextLine);
             if (!v.empty()) {
                 res.push_back(v);
                 //counter++;
@@ -89,7 +89,7 @@ void NetworkConfigurator::configHandler(std::vector<std::string> v)
     }
 }
 
-std::vector<Neuron> NetworkConfigurator::layerHandler(std::vector<std::string> v, FileReader& networkConfig)
+std::vector<Neuron> NetworkConfigurator::layerHandler(std::vector<std::string> v)
 {
     std::vector<Neuron> res;
     if (v[0] == "Layer") {
@@ -97,9 +97,9 @@ std::vector<Neuron> NetworkConfigurator::layerHandler(std::vector<std::string> v
             throw std::runtime_error("Network configuration failed, layers not set or too many layers");
         }
         else {
-            while (networkConfig.isNextLine()) {
+            while (networkConfig_.isNextLine()) {
                 int counter = 0;
-                std::vector<std::string> nextLine = networkConfig.readNextLineSplit(" ");
+                std::vector<std::string> nextLine = networkConfig_.readNextLineSplit(" ");
                 if (!nextLine.empty()) {
                     if (nextLine[0] == "End") {
                         break;
@@ -142,4 +142,10 @@ std::vector<Neuron> NetworkConfigurator::layerHandler(std::vector<std::string> v
         // Do Nothing
     }
     return res;
+}
+
+NetworkConfigurator::~NetworkConfigurator()
+{
+    networkConfig_.closeFile();
+    std::cout << "Closing network configurator. \n";
 }

@@ -33,6 +33,9 @@
     <ClCompile Include="NetworkConfigurator.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="MappingConfigurator.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="TemporalNeuralNetworks.h">
@@ -53,8 +56,12 @@
     <ClInclude Include="NetworkConfigurator.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="MappingConfigurator.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Text Include="network_config.txt" />
+    <Text Include="mapping_config.txt" />
   </ItemGroup>
 </Project>
