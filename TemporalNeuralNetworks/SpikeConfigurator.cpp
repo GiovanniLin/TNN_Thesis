@@ -42,6 +42,11 @@ std::vector<std::tuple<int, int>> SpikeConfigurator::createSpikes()
 			throw std::runtime_error("Spike configuration failed, formatting of 'spike_config.txt' is incorrect. File should say 'Spikes:' first and then list all the spikes.");
 		}
 	}
+
+	if (res.empty()) {
+		throw std::runtime_error("Spike configuration failed, no spikes found in 'spike_config.txt'.");
+	}
+
 	return res;
 }
 
