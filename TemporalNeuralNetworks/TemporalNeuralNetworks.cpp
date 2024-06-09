@@ -56,16 +56,25 @@ int main()
     }
     std::cout << "\n";
 
-    // Vector for spikes
+    std::cout << "Reading Spike Configuration \n\n";
+    SpikeConfigurator spikeConfig("spike_config.txt");
+
     std::vector<std::tuple<int, int>> spikes;
 
-    // Spikes, format: input #, time of spike
-    spikes.push_back(std::make_tuple(0, 1));
-    spikes.push_back(std::make_tuple(1, 3));
-    spikes.push_back(std::make_tuple(2, 2));
-    spikes.push_back(std::make_tuple(3, 4));
+    std::cout << "Creating spikes \n\n";
+    try {
+        spikes = spikeConfig.createSpikes();
+    }
+    catch (std::runtime_error& e) {
+        std::cout << e.what();
+        return 1;
+    }
 
-    std::cout << "Created Spikes \n";
+    std::cout << "Spikes: \n";
+    for (size_t i = 0; i < spikes.size(); ++i) {
+        std::cout << INDENT << "Input: " << std::get<0>(spikes[i]) << ", Time: " << std::get<1>(spikes[i]) << "\n";
+    }
+    std::cout << "\n";
 
     // System (not the neuron) inputs
     int numInputs = networkConfig.getNumInputs();

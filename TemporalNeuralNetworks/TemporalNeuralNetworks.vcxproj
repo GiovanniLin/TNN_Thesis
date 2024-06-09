@@ -146,6 +146,7 @@
     <ClCompile Include="MappingConfigurator.cpp" />
     <ClCompile Include="NetworkConfigurator.cpp" />
     <ClCompile Include="Neuron.cpp" />
+    <ClCompile Include="SpikeConfigurator.cpp" />
     <ClCompile Include="TemporalNeuralNetworks.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -155,11 +156,13 @@
     <ClInclude Include="MappingConfigurator.h" />
     <ClInclude Include="NetworkConfigurator.h" />
     <ClInclude Include="Neuron.h" />
+    <ClInclude Include="SpikeConfigurator.h" />
     <ClInclude Include="TemporalNeuralNetworks.h" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="mapping_config.txt" />
     <Text Include="network_config.txt" />
+    <Text Include="spike_config.txt" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

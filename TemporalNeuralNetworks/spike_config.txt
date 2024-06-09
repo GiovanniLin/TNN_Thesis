@@ -1,0 +1,8 @@
+Spike Config:
+
+Spikes:
+Input: 0, Time: 1
+Input: 1, Time: 3
+Input: 2, Time: 2
+Input: 3, Time: 4
+End

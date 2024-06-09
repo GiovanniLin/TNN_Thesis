@@ -9,6 +9,7 @@
 #include "FileReader.h"
 #include "NetworkConfigurator.h"
 #include "MappingConfigurator.h"
+#include "SpikeConfigurator.h"
 
 int run(
 	int cycles, 

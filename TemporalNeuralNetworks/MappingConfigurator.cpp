@@ -2,10 +2,10 @@
 
 MappingConfigurator::MappingConfigurator(std::string mappingConfig) : mappingConfig_(FileReader::FileReader(mappingConfig))
 {
-	//First line of the network_config.txt must be "Mapping Config:"
+	//First line of the mapping_config.txt must be "Mapping Config:"
 	std::string firstLine = mappingConfig_.readNextLine();
 	if (firstLine.empty() || firstLine != "Mapping Config:") {
-		throw std::runtime_error("Mapping configuration failed, file passed to MappingConfigurator is not a network configuration. Make sure the first line of the text file says 'Mapping Config:'");
+		throw std::runtime_error("Mapping configuration failed, file passed to MappingConfigurator is not a mapping configuration. Make sure the first line of the text file says 'Mapping Config:'");
 	}
 }
 
