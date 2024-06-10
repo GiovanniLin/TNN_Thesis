@@ -50,3 +50,8 @@ void Neuron::checkForIF()
 		}
 	}
 }
+
+void Neuron::removeOutputSpike()
+{
+	this->output = false;
+}

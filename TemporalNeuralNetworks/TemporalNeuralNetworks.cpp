@@ -11,7 +11,7 @@ int main()
     NetworkConfigurator networkConfig("network_config.txt");
 
     std::cout << "Creating network layers \n\n";
-    std::vector<std::vector<Neuron>> layers = networkConfig.createLayers();
+    std::vector<Layer> layers = networkConfig.createLayers();
 
     // Output to console what Integrate and Fire type is used
     std::cout << "Network Configuration: \n";
@@ -93,8 +93,8 @@ int main()
     else {
         std::cout << "No output spike \n\n";
     }
-    std::cout << "Final body potential of neuron 1A: " << layers[0][0].currentBodyPotential() << "\n";
-    std::cout << "Final body potential of neuron 2A: " << layers[1][0].currentBodyPotential() << "\n";
+    std::cout << "Final body potential of neuron 1A: " << layers[0].neurons[0].currentBodyPotential() << "\n";
+    std::cout << "Final body potential of neuron 2A: " << layers[1].neurons[0].currentBodyPotential() << "\n";
     //std::cout << "Neuron input 0 spike: " << neuron.inputs[0]->getSpike() << "\n";
 
     // Delete dynamically allocated array for inputs
@@ -105,7 +105,7 @@ int main()
 
 int run(
     int cycles, 
-    std::vector<std::vector<Neuron>>& layers, 
+    std::vector<Layer>& layers, 
     bool inputs[], 
     std::vector<std::tuple<int, int, int>> inputMap,
     std::vector<std::tuple<int, int, int>> layerMap,
@@ -121,7 +121,7 @@ int run(
     connectLayers(layers[0], layers[1], layerMap);
 
     // Output of the system
-    bool& finalOutput = layers[1][0].output;
+    bool& finalOutput = layers[1].neurons[0].output;
 
     std::cout << "Sorting Spikes \n";
     std::sort(spikes.begin(), spikes.end(), sortbysec);
@@ -138,18 +138,29 @@ int run(
         fireSpikes(simSpikes, inputs, i);
 
         for (int j = 0; j < layers.size(); j++) {
-            for (int k = 0; k < layers[j].size(); k++) {
-                layers[j][k].checkForIF();
-                layers[j][k].checkForSpike();
-                layers[j][k].checkThreshold();
-                if (layers[j][k].output) {
+            //for (int k = 0; k < layers[j].size(); k++) {
+            //    layers[j][k].checkForIF();
+            //    layers[j][k].checkForSpike();
+            //    layers[j][k].checkThreshold();
+            //    if (layers[j][k].output) {
+            //        std::cout << "Layer " << j << " Neuron " << k << " body potential over threshold at time " << i << "\n";
+            //    }
+            //}
+            layers[j].checkNeuronIFs();
+            layers[j].checkNeuronSpikes();
+            layers[j].checkNeuronThresholds();
+            
+            std::vector<int> outputs = layers[j].checkOutputs();
+
+            if (!outputs.empty()) {
+                for (auto k : outputs) {
                     std::cout << "Layer " << j << " Neuron " << k << " body potential over threshold at time " << i << "\n";
                 }
             }
         }
 
-        std::cout << "Body potential at time " << i << " for neuron 1A after checks: " << layers[0][0].currentBodyPotential() << "\n";
-        std::cout << "Body potential at time " << i << " for neuron 2A after checks: " << layers[1][0].currentBodyPotential() << "\n";
+        std::cout << "Body potential at time " << i << " for neuron 1A after checks: " << layers[0].neurons[0].currentBodyPotential() << "\n";
+        std::cout << "Body potential at time " << i << " for neuron 2A after checks: " << layers[1].neurons[0].currentBodyPotential() << "\n";
 
         if (finalOutput) {
             outputTime = i;
@@ -159,10 +170,13 @@ int run(
         resetSpikes(inputs);
         
         // Reset output spikes
+        //for (int j = 0; j < layers.size(); j++) {
+        //    for (int k = 0; k < layers[j].size(); k++) {
+        //        layers[j][k].output = false;
+        //    }
+        //}
         for (int j = 0; j < layers.size(); j++) {
-            for (int k = 0; k < layers[j].size(); k++) {
-                layers[j][k].output = false;
-            }
+            layers[j].removeOutputSpikes();
         }
 
         // Add white space after 1 cycle
@@ -176,7 +190,7 @@ bool sortbysec(const std::tuple<int, int>& a, const std::tuple<int, int>& b)
     return (std::get<1>(a) < std::get<1>(b));
 }
 
-void connectInputs(bool inputs[], std::vector<Neuron>& inputLayer, std::vector<std::tuple<int, int, int>> inputMap)
+void connectInputs(bool inputs[], Layer& inputLayer, std::vector<std::tuple<int, int, int>> inputMap)
 {
     for (auto mapping : inputMap) {
         int inputIndex = std::get<0>(mapping);
@@ -188,12 +202,12 @@ void connectInputs(bool inputs[], std::vector<Neuron>& inputLayer, std::vector<s
         int weight = std::get<2>(mapping);
         bool* ptr = &(inputs[inputIndex]);
 
-        inputLayer[neuronIndex].overwriteInput(neuronInputIndex, weight, ptr);
+        inputLayer.neurons[neuronIndex].overwriteInput(neuronInputIndex, weight, ptr);
     }
 }
 
 // Adjust later for more than two layers.
-void connectLayers(std::vector<Neuron>& firstLayer, std::vector<Neuron>& secondLayer, std::vector<std::tuple<int, int, int>> layerMap) 
+void connectLayers(Layer& firstLayer, Layer& secondLayer, std::vector<std::tuple<int, int, int>> layerMap) 
 {
     for (auto mapping : layerMap) {
         int firstLayerNeuronIndex = std::get<0>(mapping);
@@ -203,18 +217,18 @@ void connectLayers(std::vector<Neuron>& firstLayer, std::vector<Neuron>& secondL
         int secondLayerNeuronInputIndex = std::get<1>(secondLayerNeuronIndices);
 
         int weight = std::get<2>(mapping);
-        bool* ptr = &(firstLayer[firstLayerNeuronIndex].output);
+        bool* ptr = &(firstLayer.neurons[firstLayerNeuronIndex].output);
 
-        secondLayer[secondLayerNeuronIndex].overwriteInput(secondLayerNeuronInputIndex, weight, ptr);
+        secondLayer.neurons[secondLayerNeuronIndex].overwriteInput(secondLayerNeuronInputIndex, weight, ptr);
     }
 }
 
-std::tuple<int, int> getNeuronInputIndex(std::vector<Neuron>& inputLayer, std::tuple<int, int, int> mapping)
+std::tuple<int, int> getNeuronInputIndex(Layer& inputLayer, std::tuple<int, int, int> mapping)
 {
     int neuronIndex = 0;
     int neuronInputIndex = std::get<1>(mapping);
 
-    for (auto neuron : inputLayer) {
+    for (auto neuron : inputLayer.neurons) {
         if (neuron.inputs.size() < neuronInputIndex) {
             neuronInputIndex -= neuron.inputs.size();
             neuronIndex += 1;

@@ -10,10 +10,11 @@
 #include "NetworkConfigurator.h"
 #include "MappingConfigurator.h"
 #include "SpikeConfigurator.h"
+#include "Layer.h"
 
 int run(
 	int cycles, 
-	std::vector<std::vector<Neuron>>& layers,
+	std::vector<Layer>& layers,
 	bool inputs[], 
 	std::vector<std::tuple<int, int, int>> inputMap, 
 	std::vector<std::tuple<int, int, int>> layerMap, 
@@ -21,11 +22,11 @@ int run(
 
 bool sortbysec(const std::tuple<int, int>& a, const std::tuple<int, int>& b);
 
-void connectInputs(bool inputs[], std::vector<Neuron>& inputLayer, std::vector<std::tuple<int, int, int>> inputMap);
+void connectInputs(bool inputs[], Layer& inputLayer, std::vector<std::tuple<int, int, int>> inputMap);
 
-void connectLayers(std::vector<Neuron>& firstLayer, std::vector<Neuron>& secondLayer, std::vector<std::tuple<int, int, int>> layerMap);
+void connectLayers(Layer& firstLayer, Layer& secondLayer, std::vector<std::tuple<int, int, int>> layerMap);
 
-std::tuple<int, int> getNeuronInputIndex(std::vector<Neuron>& inputLayer, std::tuple<int, int, int> mapping);
+std::tuple<int, int> getNeuronInputIndex(Layer& inputLayer, std::tuple<int, int, int> mapping);
 
 std::vector<std::vector<int>> generateSpikes(std::vector<std::tuple<int, int>> spikes, int simLength);
 

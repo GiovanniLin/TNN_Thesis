@@ -3,6 +3,7 @@
 #include <iostream>
 #include <vector>
 #include "Neuron.h"
+#include "layer.h"
 
 class NetworkConfigurator
 {
@@ -14,9 +15,9 @@ public:
 	void setNumLayers(int numLayers);
 	int getIFType();
 	void setIFType(int ifType);
-	std::vector<std::vector<Neuron>> createLayers();
+	std::vector<Layer> createLayers();
 	void configHandler(std::vector<std::string> v);
-	std::vector<Neuron> layerHandler(std::vector<std::string> v);
+	Layer layerHandler(std::vector<std::string> v);
 	~NetworkConfigurator();
 private:
 	int numInputs = -1;

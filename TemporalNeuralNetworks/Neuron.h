@@ -21,5 +21,6 @@ public:
 	int currentBodyPotential();
 	void checkForSpike();
 	void checkForIF();
+	void removeOutputSpike();
 };
 

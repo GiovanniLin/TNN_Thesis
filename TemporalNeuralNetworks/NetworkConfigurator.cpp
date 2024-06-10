@@ -50,9 +50,9 @@ void NetworkConfigurator::setIFType(int ifType)
     this->ifType = ifType;
 }
 
-std::vector<std::vector<Neuron>> NetworkConfigurator::createLayers()
+std::vector<Layer> NetworkConfigurator::createLayers()
 {
-    std::vector<std::vector<Neuron>> res;
+    std::vector<Layer> res;
     
     //int counter = 0;
 
@@ -60,8 +60,8 @@ std::vector<std::vector<Neuron>> NetworkConfigurator::createLayers()
         std::vector<std::string> nextLine = networkConfig_.readNextLineSplit(" ");
         if (!nextLine.empty()) {
             //std::cout << "Creating layer " << counter << " \n";
-            std::vector<Neuron> v = layerHandler(nextLine);
-            if (!v.empty()) {
+            Layer v = layerHandler(nextLine);
+            if (!v.neurons.empty()) {
                 res.push_back(v);
                 //counter++;
             }
@@ -70,6 +70,11 @@ std::vector<std::vector<Neuron>> NetworkConfigurator::createLayers()
     if (res.size() > numLayers) {
         throw std::runtime_error("Network configuration failed, layers not set or too many layers");
     }
+
+    if (res.empty()) {
+        throw std::runtime_error("Network configuration failed, couldn't make any layers, check 'network_config.txt'");
+    }
+
     return res;
 }
 
@@ -89,9 +94,9 @@ void NetworkConfigurator::configHandler(std::vector<std::string> v)
     }
 }
 
-std::vector<Neuron> NetworkConfigurator::layerHandler(std::vector<std::string> v)
+Layer NetworkConfigurator::layerHandler(std::vector<std::string> v)
 {
-    std::vector<Neuron> res;
+    Layer res;
     if (v[0] == "Layer") {
         if (std::stoi(v[1]) >= numLayers) {
             throw std::runtime_error("Network configuration failed, layers not set or too many layers");
@@ -128,7 +133,7 @@ std::vector<Neuron> NetworkConfigurator::layerHandler(std::vector<std::string> v
                         int neuronThreshold = std::stoi(nextLine[5]);
 
                         //std::cout << "Neuron threshold set \n";
-                        res.push_back(Neuron(neuronNumInputs, neuronThreshold, ifType));
+                        res.addNeuron(Neuron(neuronNumInputs, neuronThreshold, ifType));
                         counter += 1;
                     }
                     else {
