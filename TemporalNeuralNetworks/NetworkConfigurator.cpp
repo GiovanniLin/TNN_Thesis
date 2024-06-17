@@ -103,7 +103,6 @@ Layer NetworkConfigurator::layerHandler(std::vector<std::string> v)
         }
         else {
             while (networkConfig_.isNextLine()) {
-                int counter = 0;
                 std::vector<std::string> nextLine = networkConfig_.readNextLineSplit(" ");
                 if (!nextLine.empty()) {
                     if (nextLine[0] == "End") {
@@ -111,13 +110,13 @@ Layer NetworkConfigurator::layerHandler(std::vector<std::string> v)
                     }
                     else if (nextLine[0] == "Neuron") {
                         //std::cout << "Found keyword '" << nextLine[0] << "' \n";
-                        if (counter != std::stoi(nextLine[1])) {
-                            throw std::runtime_error("Network configuration failed, incorrect numbering of neurons");
+                        if (neuronCounter != std::stoi(nextLine[1])) {
+                            throw std::runtime_error("Network configuration failed, incorrect numbering of neurons \n");
                         }
 
                         //std::cout << "Numbering of Neurons correct \n";
                         if (nextLine[2] != "inputs:") {
-                            throw std::runtime_error("Network configuration failed, invalid formatting of neuron. Correct formatting is 'Neuron # inputs: #, threshold: #'");
+                            throw std::runtime_error("Network configuration failed, invalid formatting of neuron. Correct formatting is 'Neuron # inputs: #, threshold: #' \n");
                         }
 
                         //std::cout << "Found keyword '" << nextLine[2] << "' \n";
@@ -126,7 +125,7 @@ Layer NetworkConfigurator::layerHandler(std::vector<std::string> v)
                         //std::cout << "Neuron number of inputs set \n";
 
                         if (nextLine[4] != "threshold:") {
-                            throw std::runtime_error("Network configuration failed, invalid formatting of neuron. Correct formatting is 'Neuron # inputs: #, threshold: #'");
+                            throw std::runtime_error("Network configuration failed, invalid formatting of neuron. Correct formatting is 'Neuron # inputs: #, threshold: #' \n");
                         }
 
                         //std::cout << "Found keyword'" << nextLine[4] << "' \n";
@@ -134,7 +133,7 @@ Layer NetworkConfigurator::layerHandler(std::vector<std::string> v)
 
                         //std::cout << "Neuron threshold set \n";
                         res.addNeuron(Neuron(neuronNumInputs, neuronThreshold, ifType));
-                        counter += 1;
+                        neuronCounter += 1;
                     }
                     else {
                         throw std::runtime_error("Network configuration failed, invalid argument after 'Layer #:'. Correct arguments are 'Neuron # inputs: #, threshold: #' or 'End'");
@@ -146,6 +145,7 @@ Layer NetworkConfigurator::layerHandler(std::vector<std::string> v)
     else {
         // Do Nothing
     }
+    neuronCounter = 0;
     return res;
 }
 

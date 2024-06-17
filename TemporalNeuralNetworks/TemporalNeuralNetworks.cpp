@@ -11,7 +11,15 @@ int main()
     NetworkConfigurator networkConfig("network_config.txt");
 
     std::cout << "Creating network layers \n\n";
-    std::vector<Layer> layers = networkConfig.createLayers();
+    std::vector<Layer> layers;
+
+    try {
+        layers = networkConfig.createLayers();
+    }
+    catch (std::runtime_error& e) {
+        std::cout << e.what();
+        return 1;
+    }
 
     // Output to console what Integrate and Fire type is used
     std::cout << "Network Configuration: \n";
@@ -94,7 +102,9 @@ int main()
         std::cout << "No output spike \n\n";
     }
     std::cout << "Final body potential of neuron 1A: " << layers[0].neurons[0].currentBodyPotential() << "\n";
+    std::cout << "Final body potential of neuron 1B: " << layers[0].neurons[1].currentBodyPotential() << "\n";
     std::cout << "Final body potential of neuron 2A: " << layers[1].neurons[0].currentBodyPotential() << "\n";
+    std::cout << "Final body potential of neuron 2B: " << layers[1].neurons[1].currentBodyPotential() << "\n";
     //std::cout << "Neuron input 0 spike: " << neuron.inputs[0]->getSpike() << "\n";
 
     // Delete dynamically allocated array for inputs
@@ -121,7 +131,8 @@ int run(
     connectLayers(layers[0], layers[1], layerMap);
 
     // Output of the system
-    bool& finalOutput = layers[1].neurons[0].output;
+    bool& finalOutputA = layers[1].neurons[0].output;
+    bool& finalOutputB = layers[1].neurons[1].output;
 
     std::cout << "Sorting Spikes \n";
     std::sort(spikes.begin(), spikes.end(), sortbysec);
@@ -160,10 +171,19 @@ int run(
         }
 
         std::cout << "Body potential at time " << i << " for neuron 1A after checks: " << layers[0].neurons[0].currentBodyPotential() << "\n";
+        std::cout << "Body potential at time " << i << " for neuron 1B after checks: " << layers[0].neurons[1].currentBodyPotential() << "\n";
         std::cout << "Body potential at time " << i << " for neuron 2A after checks: " << layers[1].neurons[0].currentBodyPotential() << "\n";
+        std::cout << "Body potential at time " << i << " for neuron 2B after checks: " << layers[1].neurons[1].currentBodyPotential() << "\n";
 
-        if (finalOutput) {
+        if (finalOutputA) {
             outputTime = i;
+            std::cout << "Output from neuron 2A \n";
+            std::cout << "\n";
+            break; // Stop running because output generated
+        }
+        else if (finalOutputB) {
+            outputTime = i;
+            std::cout << "Output from neuron 2B \n";
             std::cout << "\n";
             break; // Stop running because output generated
         }
@@ -193,11 +213,17 @@ bool sortbysec(const std::tuple<int, int>& a, const std::tuple<int, int>& b)
 void connectInputs(bool inputs[], Layer& inputLayer, std::vector<std::tuple<int, int, int>> inputMap)
 {
     for (auto mapping : inputMap) {
+
         int inputIndex = std::get<0>(mapping);
+        std::cout << "Input index: " << inputIndex << " \n";
 
         std::tuple<int, int> neuronIndices = getNeuronInputIndex(inputLayer, mapping);
+
         int neuronIndex = std::get<0>(neuronIndices);
+        std::cout << "First Layer Neuron index: " << neuronIndex << " \n";
+
         int neuronInputIndex = std::get<1>(neuronIndices);
+        std::cout << "First Layer Neuron input index: " << neuronInputIndex << " \n\n";
 
         int weight = std::get<2>(mapping);
         bool* ptr = &(inputs[inputIndex]);
@@ -229,7 +255,7 @@ std::tuple<int, int> getNeuronInputIndex(Layer& inputLayer, std::tuple<int, int,
     int neuronInputIndex = std::get<1>(mapping);
 
     for (auto neuron : inputLayer.neurons) {
-        if (neuron.inputs.size() < neuronInputIndex) {
+        if (neuron.inputs.size() <= neuronInputIndex) {
             neuronInputIndex -= neuron.inputs.size();
             neuronIndex += 1;
         }

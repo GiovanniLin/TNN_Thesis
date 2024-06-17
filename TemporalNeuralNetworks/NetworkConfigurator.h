@@ -23,6 +23,7 @@ private:
 	int numInputs = -1;
 	int numLayers = -1;
 	int ifType = -1;
+	int neuronCounter = 0;
 	FileReader networkConfig_;
 };
 

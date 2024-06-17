@@ -6,8 +6,10 @@ Inputs: 4
 
 Layer 0:
 Neuron 0 inputs: 4, threshold: 8
+Neuron 1 inputs: 4, threshold: 8
 End
 
 Layer 1:
 Neuron 0 inputs: 1, threshold: 3
+Neuron 1 inputs: 1, threshold: 3
 End

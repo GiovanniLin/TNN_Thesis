@@ -2,11 +2,16 @@ Mapping Config:
 
 Input Map:
 Input: 0, Network: 0, Weight: 4
-Input: 3, Network: 1, Weight: 2
-Input: 2, Network: 2, Weight: 1
-Input: 1, Network: 3
+Input: 1, Network: 1
+Input: 2, Network: 2
+Input: 3, Network: 3, Weight: 2
+Input: 0, Network: 4, Weight: 4
+Input: 1, Network: 5
+Input: 2, Network: 6
+Input: 3, Network: 7, Weight: 2
 End
 
 Layer Map 0:
 Layer 0: 0, Layer 1: 0, Weight: 4
+Layer 0: 1, Layer 1: 1, Weight: 4
 End
