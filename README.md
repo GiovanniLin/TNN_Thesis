@@ -6,46 +6,46 @@ Network Config:
 IntegrateFireType: (number)\
 Layers: (number)\
 Inputs: (number)\
-FullConfigure: (Yes or No)\
+FullConfigure: (Yes or No)
 
 ### FullConfigure: Yes
 Layer i:\
 Neuron n inputs: (number), threshold: (number)\
 Neuron n+1 inputs: (number), threshold: (number)\
-End\
+End
 
 Layer i+1:\
 Neuron n inputs: (number), threshold: (number)\
 Neuron n+1 inputs: (number), threshold: (number)\
-End\
+End
 
 ### FullConfigure: No
 Layer i:\
 Neurons: (number)\
 Threshold: (number)\
-End\
+End
 
 Layer i+1:\
 Neurons: (number)\
 Threshold: (number)\
-End\
+End
 
 # Formatting of mapping_config.txt
-Mapping Config:\
+Mapping Config:
 
-FullyConnected: Yes\
+FullyConnected: Yes
 
 ### FullyConnected: Yes (best used with FullConfigure: No)
 Input Map:\
 Inputs: (number)\
 Layer 0 Neurons: (number)\
 DefaultWeight: (number) (optional, remove if not necessary)\
-End\
+End
 
 Layer Map i:\
 Layer i Neurons: (number)\
 Layer i+1 Neurons: (number)\
-End\
+End
 
 ### FullyConnected: No (best used with FullConfigure: Yes)
 Input Map:\
@@ -57,11 +57,11 @@ Input: 0, Network: 4, Weight: 4\
 Input: 1, Network: 5\
 Input: 2, Network: 6\
 Input: 3, Network: 7, Weight: 2\
-End\
+End
 
 Layer Map 0:\
 Layer 0: 0, Layer 1: 0, Weight: 4\
 Layer 0: 1, Layer 1: 1, Weight: 4\
-End\
+End
 
-(this is just an example, use any numbers you like)\
+(this is just an example, use any numbers you like)
