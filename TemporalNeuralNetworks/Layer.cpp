@@ -30,6 +30,7 @@ void Layer::checkNeuronIFs()
 void Layer::checkNeuronSpikes()
 {
 	for (int i = 0; i < neurons.size(); ++i) {
+		std::cout << "Checking spike on neuron: " << i << " \n";
 		neurons[i].checkForSpike();
 	}
 }

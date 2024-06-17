@@ -13,12 +13,12 @@ NetworkConfigurator::NetworkConfigurator(std::string networkConfig) : networkCon
         if (!nextLine.empty()) {
             configHandler(nextLine);
         }
-        if (numInputs != -1 && numLayers != -1 && ifType != -1) {
+        if (numInputs != -1 && numLayers != -1 && ifType != -1 && fullConfigure != -1) {
             break;
         }
     }
 
-    if (numInputs == -1 || numLayers == -1 || ifType == -1) {
+    if (numInputs == -1 || numLayers == -1 || ifType == -1 || fullConfigure == -1) {
         throw std::runtime_error("Network configuration failed, one of three arguments not specified");
     }
 }
@@ -48,6 +48,11 @@ int NetworkConfigurator::getIFType() {
 void NetworkConfigurator::setIFType(int ifType)
 {
     this->ifType = ifType;
+}
+
+void NetworkConfigurator::setFullConfigure(int fullConfigure)
+{
+    this->fullConfigure = fullConfigure;
 }
 
 std::vector<Layer> NetworkConfigurator::createLayers()
@@ -89,6 +94,14 @@ void NetworkConfigurator::configHandler(std::vector<std::string> v)
     else if (v[0] == "Inputs:") {
         setNumInputs(std::stoi(v[1]));
     }
+    else if (v[0] == "FullConfigure:") {
+        if (v[1] == "Yes" || v[1] == "yes") {
+            setFullConfigure(1);
+        }
+        else if (v[1] == "No" || v[1] == "no") {
+            setFullConfigure(0);
+        }
+    }
     else {
         return; // do nothing
     }
@@ -97,55 +110,108 @@ void NetworkConfigurator::configHandler(std::vector<std::string> v)
 Layer NetworkConfigurator::layerHandler(std::vector<std::string> v)
 {
     Layer res;
-    if (v[0] == "Layer") {
-        if (std::stoi(v[1]) >= numLayers) {
-            throw std::runtime_error("Network configuration failed, layers not set or too many layers");
-        }
-        else {
-            while (networkConfig_.isNextLine()) {
-                std::vector<std::string> nextLine = networkConfig_.readNextLineSplit(" ");
-                if (!nextLine.empty()) {
-                    if (nextLine[0] == "End") {
-                        break;
-                    }
-                    else if (nextLine[0] == "Neuron") {
-                        //std::cout << "Found keyword '" << nextLine[0] << "' \n";
-                        if (neuronCounter != std::stoi(nextLine[1])) {
-                            throw std::runtime_error("Network configuration failed, incorrect numbering of neurons \n");
+    if (fullConfigure == 1) {
+        if (v[0] == "Layer") {
+            if (std::stoi(v[1]) >= numLayers) {
+                throw std::runtime_error("Network configuration failed, layers not set or too many layers");
+            }
+            else {
+                while (networkConfig_.isNextLine()) {
+                    std::vector<std::string> nextLine = networkConfig_.readNextLineSplit(" ");
+                    if (!nextLine.empty()) {
+                        if (nextLine[0] == "End") {
+                            break;
                         }
+                        else if (nextLine[0] == "Neuron") {
+                            //std::cout << "Found keyword '" << nextLine[0] << "' \n";
+                            if (neuronCounter != std::stoi(nextLine[1])) {
+                                throw std::runtime_error("Network configuration failed, incorrect numbering of neurons \n");
+                            }
 
-                        //std::cout << "Numbering of Neurons correct \n";
-                        if (nextLine[2] != "inputs:") {
-                            throw std::runtime_error("Network configuration failed, invalid formatting of neuron. Correct formatting is 'Neuron # inputs: #, threshold: #' \n");
+                            //std::cout << "Numbering of Neurons correct \n";
+                            if (nextLine[2] != "inputs:") {
+                                throw std::runtime_error("Network configuration failed, invalid formatting of neuron. Correct formatting is 'Neuron # inputs: #, threshold: #' \n");
+                            }
+
+                            //std::cout << "Found keyword '" << nextLine[2] << "' \n";
+                            int neuronNumInputs = std::stoi(nextLine[3]);
+
+                            //std::cout << "Neuron number of inputs set \n";
+
+                            if (nextLine[4] != "threshold:") {
+                                throw std::runtime_error("Network configuration failed, invalid formatting of neuron. Correct formatting is 'Neuron # inputs: #, threshold: #' \n");
+                            }
+
+                            //std::cout << "Found keyword'" << nextLine[4] << "' \n";
+                            int neuronThreshold = std::stoi(nextLine[5]);
+
+                            //std::cout << "Neuron threshold set \n";
+                            res.addNeuron(Neuron(neuronNumInputs, neuronThreshold, ifType));
+                            neuronCounter += 1;
                         }
-
-                        //std::cout << "Found keyword '" << nextLine[2] << "' \n";
-                        int neuronNumInputs = std::stoi(nextLine[3]);
-
-                        //std::cout << "Neuron number of inputs set \n";
-
-                        if (nextLine[4] != "threshold:") {
-                            throw std::runtime_error("Network configuration failed, invalid formatting of neuron. Correct formatting is 'Neuron # inputs: #, threshold: #' \n");
+                        else {
+                            throw std::runtime_error("Network configuration failed, invalid argument after 'Layer #:'. Correct arguments are 'Neuron # inputs: #, threshold: #' or 'End'");
                         }
-
-                        //std::cout << "Found keyword'" << nextLine[4] << "' \n";
-                        int neuronThreshold = std::stoi(nextLine[5]);
-
-                        //std::cout << "Neuron threshold set \n";
-                        res.addNeuron(Neuron(neuronNumInputs, neuronThreshold, ifType));
-                        neuronCounter += 1;
-                    }
-                    else {
-                        throw std::runtime_error("Network configuration failed, invalid argument after 'Layer #:'. Correct arguments are 'Neuron # inputs: #, threshold: #' or 'End'");
                     }
                 }
             }
         }
+        else {
+            // Do Nothing
+        }
+    }
+    else if (fullConfigure == 0) {
+        int numNeurons = -1;
+        int layerThreshold = -1;
+        int currentLayer = -1;
+        if (v[0] == "Layer") {
+            if (std::stoi(v[1]) >= numLayers) {
+                throw std::runtime_error("Network configuration failed, layers not set or too many layers");
+            }
+            else {
+                currentLayer = std::stoi(v[1]);
+                while (networkConfig_.isNextLine()) {
+                    std::vector<std::string> nextLine = networkConfig_.readNextLineSplit(" ");
+                    if (!nextLine.empty()) {
+                        if (nextLine[0] == "End") {
+                            break;
+                        }
+                        else if (nextLine[0] == "Neurons:") {
+                            numNeurons = std::stoi(nextLine[1]);
+                        }
+                        else if (nextLine[0] == "Threshold:") {
+                            layerThreshold = std::stoi(nextLine[1]);
+                        }
+                        else {
+                            throw std::runtime_error("Network configuration failed, invalid argument after 'Layer #:'. Correct arguments are 'Neurons: #', 'Threshold: #' or 'End'");
+                        }
+                    }
+                }
+
+                if (numNeurons < 0 || layerThreshold < 0) {
+                    throw std::runtime_error("Network configuration failed, invalid value specified for 'Neurons: #' or 'Threshold: #'");
+                }
+
+                for (int i = 0; i < numNeurons; ++i) {
+                    if (currentLayer == 0) {
+                        res.addNeuron(Neuron(numInputs, layerThreshold, ifType));
+                    }
+                    else {
+                        res.addNeuron(Neuron(numNeuronsPrevLayer, layerThreshold, ifType));
+                    }
+                }
+
+            }
+        }
+        else {
+            // Do Nothing
+        }
     }
     else {
-        // Do Nothing
+        throw std::runtime_error("Network configuration failed, FullConfigure was not set. Please make sure FullConfigure is set to Yes or No");
     }
     neuronCounter = 0;
+    numNeuronsPrevLayer = res.neurons.size();
     return res;
 }
 

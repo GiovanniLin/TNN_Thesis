@@ -15,6 +15,7 @@ public:
 	void setNumLayers(int numLayers);
 	int getIFType();
 	void setIFType(int ifType);
+	void setFullConfigure(int fullConfigure);
 	std::vector<Layer> createLayers();
 	void configHandler(std::vector<std::string> v);
 	Layer layerHandler(std::vector<std::string> v);
@@ -23,7 +24,9 @@ private:
 	int numInputs = -1;
 	int numLayers = -1;
 	int ifType = -1;
+	int fullConfigure = -1; // 0 is No, 1 is Yes, -1 is value not set
 	int neuronCounter = 0;
+	int numNeuronsPrevLayer = -1;
 	FileReader networkConfig_;
 };
 

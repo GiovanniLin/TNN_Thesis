@@ -145,6 +145,7 @@ int run(
     
     resetSpikes(inputs); // Make sure everything is false
 
+    std::cout << "Now running \n\n";
     for (int i = 0; i < cycles; i++) {
         fireSpikes(simSpikes, inputs, i);
 
@@ -157,9 +158,11 @@ int run(
             //        std::cout << "Layer " << j << " Neuron " << k << " body potential over threshold at time " << i << "\n";
             //    }
             //}
+            std::cout << "Checking layer: " << j << " \n";
             layers[j].checkNeuronIFs();
             layers[j].checkNeuronSpikes();
             layers[j].checkNeuronThresholds();
+            std::cout << "\n";
             
             std::vector<int> outputs = layers[j].checkOutputs();
 
@@ -215,15 +218,15 @@ void connectInputs(bool inputs[], Layer& inputLayer, std::vector<std::tuple<int,
     for (auto mapping : inputMap) {
 
         int inputIndex = std::get<0>(mapping);
-        std::cout << "Input index: " << inputIndex << " \n";
+        //std::cout << "Input index: " << inputIndex << " \n";
 
         std::tuple<int, int> neuronIndices = getNeuronInputIndex(inputLayer, mapping);
 
         int neuronIndex = std::get<0>(neuronIndices);
-        std::cout << "First Layer Neuron index: " << neuronIndex << " \n";
+        //std::cout << "First Layer Neuron index: " << neuronIndex << " \n";
 
         int neuronInputIndex = std::get<1>(neuronIndices);
-        std::cout << "First Layer Neuron input index: " << neuronInputIndex << " \n\n";
+        //std::cout << "First Layer Neuron input index: " << neuronInputIndex << " \n\n";
 
         int weight = std::get<2>(mapping);
         bool* ptr = &(inputs[inputIndex]);
@@ -237,10 +240,15 @@ void connectLayers(Layer& firstLayer, Layer& secondLayer, std::vector<std::tuple
 {
     for (auto mapping : layerMap) {
         int firstLayerNeuronIndex = std::get<0>(mapping);
+        //std::cout << "firstLayerNeuronIndex: " << firstLayerNeuronIndex << " \n";
 
         std::tuple<int, int> secondLayerNeuronIndices = getNeuronInputIndex(secondLayer, mapping);
+
         int secondLayerNeuronIndex = std::get<0>(secondLayerNeuronIndices);
+        //std::cout << "secondLayerNeuronIndex: " << secondLayerNeuronIndex << " \n";
+
         int secondLayerNeuronInputIndex = std::get<1>(secondLayerNeuronIndices);
+        //std::cout << "secondLayerNeuronInputIndex: " << secondLayerNeuronInputIndex << " \n\n";
 
         int weight = std::get<2>(mapping);
         bool* ptr = &(firstLayer.neurons[firstLayerNeuronIndex].output);
