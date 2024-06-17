@@ -19,7 +19,7 @@ NetworkConfigurator::NetworkConfigurator(std::string networkConfig) : networkCon
     }
 
     if (numInputs == -1 || numLayers == -1 || ifType == -1 || fullConfigure == -1) {
-        throw std::runtime_error("Network configuration failed, one of three arguments not specified");
+        throw std::runtime_error("Network configuration failed, one of four arguments (IntegrateFireType, Layers, Inputs, FullConfigure) not specified");
     }
 }
 

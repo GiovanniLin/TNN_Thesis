@@ -77,7 +77,4 @@
     <Text Include="mapping_config.txt" />
     <Text Include="spike_config.txt" />
   </ItemGroup>
-  <ItemGroup>
-    <None Include="README.md" />
-  </ItemGroup>
 </Project>

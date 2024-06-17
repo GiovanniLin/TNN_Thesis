@@ -7,40 +7,88 @@ MappingConfigurator::MappingConfigurator(std::string mappingConfig) : mappingCon
 	if (firstLine.empty() || firstLine != "Mapping Config:") {
 		throw std::runtime_error("Mapping configuration failed, file passed to MappingConfigurator is not a mapping configuration. Make sure the first line of the text file says 'Mapping Config:'");
 	}
+
+	while (mappingConfig_.isNextLine()) {
+		std::vector<std::string> nextLine = mappingConfig_.readNextLineSplit(" ");
+		if (!nextLine.empty()) {
+			configHandler(nextLine);
+		}
+		if (fullyConnected != -1) {
+			break;
+		}
+	}
+
+	if (fullyConnected == -1) {
+		throw std::runtime_error("Mapping configuration failed, 'FullyConnected' not specified");
+	}
+}
+
+void MappingConfigurator::setFullyConnected(int fullyConnected)
+{
+	this->fullyConnected = fullyConnected;
+}
+
+void MappingConfigurator::configHandler(std::vector<std::string> v)
+{
+	if (v[0] == "FullyConnected:") {
+		if (v[1] == "Yes" || v[1] == "yes") {
+			setFullyConnected(1);
+		}
+		else if (v[1] == "No" || v[1] == "no") {
+			setFullyConnected(0);
+		}
+	}
+	else {
+		return; // do nothing
+	}
 }
 
 std::vector<std::tuple<int, int, int>> MappingConfigurator::createInputMap()
 {
 	std::vector<std::tuple<int, int, int>> res;
 
-	while (mappingConfig_.isNextLine()) {
-		std::string nextLine = mappingConfig_.readNextLine();
-		if (nextLine.empty()) {
-			continue;
-		}
-		else if (nextLine == "Input Map:") {
-			while (mappingConfig_.isNextLine()) {
-				std::vector<std::string> nL = mappingConfig_.readNextLineSplit(" ");
-				if (!nL.empty()) {
-					std::tuple<int, int, int> mapping = inputMapHandler(nL);
-					if (std::get<0>(mapping) == -1 || std::get<1>(mapping) == -1) {
-						if (nL[0] == "End") {
-							break;
+	if (fullyConnected == 0) {
+		while (mappingConfig_.isNextLine()) {
+			std::string nextLine = mappingConfig_.readNextLine();
+			if (nextLine.empty()) {
+				continue;
+			}
+			else if (nextLine == "Input Map:") {
+				while (mappingConfig_.isNextLine()) {
+					std::vector<std::string> nL = mappingConfig_.readNextLineSplit(" ");
+					if (!nL.empty()) {
+						std::tuple<int, int, int> mapping = inputMapHandler(nL);
+						if (std::get<0>(mapping) == -1 || std::get<1>(mapping) == -1) {
+							if (nL[0] == "End") {
+								break;
+							}
+							else {
+								continue;
+							}
 						}
 						else {
-							continue;
+							res.push_back(mapping);
 						}
 					}
-					else {
-						res.push_back(mapping);
-					}
 				}
+				break;
 			}
-			break;
+			else {
+				throw std::runtime_error("Input map configuration failed, order of operations in 'mapping_config.txt' is incorrect. 'Input Map' should be the first mapping in the config file.");
+			}
 		}
-		else {
-			throw std::runtime_error("Input map configuration failed, order of operations in 'mapping_config.txt' is incorrect. 'Input Map' should be the first mapping in the config file.");
+	}
+	else if (fullyConnected == 1) {
+		while (mappingConfig_.isNextLine()) {
+			std::string nextLine = mappingConfig_.readNextLine();
+			if (!nextLine.empty()) {
+				res = inputMapFCHandler(nextLine);
+				break;
+			}
 		}
+	}
+	else {
+		throw std::runtime_error("Input map configuration failed, FullyConnected was not set. Please make sure FullyConnected is set to Yes or No");
 	}
 
 	if (res.empty()) {
@@ -83,6 +131,60 @@ std::tuple<int, int, int> MappingConfigurator::inputMapHandler(std::vector<std::
 	return std::make_tuple(inputNum, neuronInputNum, weight);
 }
 
+std::vector<std::tuple<int, int, int>> MappingConfigurator::inputMapFCHandler(std::string v)
+{
+	std::vector<std::tuple<int, int, int>> res;
+	int numInputs = -1;
+	int numNeuronsFirstLayer = -1;
+	int weight = 1;
+
+	if (v == "Input Map:") {
+		while (mappingConfig_.isNextLine()) {
+			std::vector<std::string> nextLine = mappingConfig_.readNextLineSplit(" ");
+			if (!nextLine.empty()) {
+				if (nextLine[0] == "End") {
+					break;
+				}
+				else if (nextLine[0] == "Inputs:") {
+					numInputs = std::stoi(nextLine[1]);
+				}
+				else if (nextLine[0] == "Layer") {
+					if (nextLine[1] != "0") {
+						throw std::runtime_error("Input map configuration failed, formatting error. Format should always be 'Layer 0 Neurons: #'");
+					}
+					if (nextLine[2] != "Neurons:") {
+						throw std::runtime_error("Input map configuration failed, formatting error. Format should always be 'Layer 0 Neurons: #'");
+					}
+					numNeuronsFirstLayer = std::stoi(nextLine[3]);
+				}
+				else if (nextLine[0] == "DefaultWeight:") {
+					if (nextLine.size() > 1) {
+						weight = std::stoi(nextLine[1]);
+					}
+				}
+			}
+		}
+
+		if (numInputs < 0 || numNeuronsFirstLayer < 0) {
+			throw std::runtime_error("Input map configuration failed, invalid value specified for 'Inputs: #' or 'Layer 0 Neurons: #'");
+		}
+
+		int numInputsNetwork = numInputs * numNeuronsFirstLayer;
+		int i = 0;
+
+		for (int j = 0; j < numInputsNetwork; ++j) {
+			res.push_back(std::make_tuple(i, j, weight));
+			i += 1;
+			i = i % numInputs;
+		}
+	}
+	else {
+		throw std::runtime_error("Input map configuration failed, order of operations in 'mapping_config.txt' is incorrect. 'Input Map' should be the first mapping in the config file.");
+	}
+
+	return res;
+}
+
 std::vector<std::tuple<int, int, int>> MappingConfigurator::createLayerMap()
 {
 	std::vector<std::tuple<int, int, int>> res;
@@ -96,28 +198,40 @@ std::vector<std::tuple<int, int, int>> MappingConfigurator::createLayerMap()
 		if (v.empty()) {
 			continue;
 		}
-		else if (v[0] == "Layer" && v[1] == "Map") {
+		if (v[0] == "Layer" && v[1] == "Map") {
 			layerCounter += 1;
 			if (layerCounter != std::stoi(v[2])) {
 				throw std::runtime_error("Layer map configuration failed, numbering for each mapping between layers is out of order. Numbering should be 0, 1, 2, ...");
 			}
-			//std::cout << "layerCounter: " << layerCounter << " \n";
-			while (mappingConfig_.isNextLine()) {
-				std::vector<std::string> nL = mappingConfig_.readNextLineSplit(" ");
-				if (!nL.empty()) {
-					std::tuple<int, int, int> mapping = layerMapHandler(nL);
-					if (std::get<0>(mapping) == -1 || std::get<1>(mapping) == -1) {
-						if (nL[0] == "End") {
-							break;
+			if (fullyConnected == 0) {
+				while (mappingConfig_.isNextLine()) {
+					std::vector<std::string> nL = mappingConfig_.readNextLineSplit(" ");
+					if (!nL.empty()) {
+						std::tuple<int, int, int> mapping = layerMapHandler(nL);
+						if (std::get<0>(mapping) == -1 || std::get<1>(mapping) == -1) {
+							if (nL[0] == "End") {
+								break;
+							}
+							else {
+								continue;
+							}
 						}
 						else {
-							continue;
+							res.push_back(mapping);
 						}
 					}
-					else {
-						res.push_back(mapping);
-					}
 				}
+				break;
+			}
+			else if (fullyConnected == 1) {
+				while (mappingConfig_.isNextLine()) {
+					res = layerMapFCHandler();
+					break;
+				}
+				break;
+			}
+			else {
+				throw std::runtime_error("Input map configuration failed, FullyConnected was not set. Please make sure FullyConnected is set to Yes or No");
 			}
 		}
 		else {
@@ -126,7 +240,7 @@ std::vector<std::tuple<int, int, int>> MappingConfigurator::createLayerMap()
 	}
 
 	if (res.empty()) {
-		throw std::runtime_error("Layer map configuration failed, input map was empty.");
+		throw std::runtime_error("Layer map configuration failed, layer map was empty.");
 	}
 
 	return res;
@@ -173,4 +287,63 @@ std::tuple<int, int, int> MappingConfigurator::layerMapHandler(std::vector<std::
 	}
 
 	return std::make_tuple(firstLayerOutputNum, secondLayerInputNum, weight);
+}
+
+std::vector<std::tuple<int, int, int>> MappingConfigurator::layerMapFCHandler()
+{
+	std::vector<std::tuple<int, int, int>> res;
+	int numNeuronsFirstLayer = -1;
+	int numNeuronsSecondLayer = -1;
+	int weight = 1;
+
+	while (mappingConfig_.isNextLine()) {
+		std::vector<std::string> nextLine = mappingConfig_.readNextLineSplit(" ");
+		if (!nextLine.empty()) {
+			std::cout << "Next Line: \n";
+			for (int i = 0; i < nextLine.size(); ++i) {
+				std::cout << nextLine[i] << " \n";
+			}
+
+			if (nextLine[0] == "End") {
+				break;
+			}
+			else if (nextLine[0] == "Layer") {
+				if (std::stoi(nextLine[1]) == layerCounter) {
+					if (nextLine[2] != "Neurons:") {
+						throw std::runtime_error("Layer map configuration failed, formatting error. Format should always be 'Layer n Neurons: #' \n");
+					}
+					numNeuronsFirstLayer = std::stoi(nextLine[3]);
+				}
+				else if (std::stoi(nextLine[1]) == (layerCounter + 1)) {
+					if (nextLine[2] != "Neurons:") {
+						throw std::runtime_error("Layer map configuration failed, formatting error. Format should always be 'Layer n+1 Neurons: #' \n");
+					}
+					numNeuronsSecondLayer = std::stoi(nextLine[3]);
+				}
+				else {
+					throw std::runtime_error("Layer map configuration failed, formatting error. Numbers after 'Layer' not in order.");
+				}
+			}
+			else if (nextLine[0] == "DefaultWeight:") {
+				if (nextLine.size() > 1) {
+					weight = std::stoi(nextLine[1]);
+				}
+			}
+		}
+	}
+
+	if (numNeuronsFirstLayer < 0 || numNeuronsSecondLayer < 0) {
+		throw std::runtime_error("Layer map configuration failed, invalid value specified for 'Layer n Neurons: #' or 'Layer n+1 Neurons: #' \n");
+	}
+
+	int numInputsSecondLayer = numNeuronsFirstLayer * numNeuronsSecondLayer;
+	int i = 0;
+
+	for (int j = 0; j < numInputsSecondLayer; ++j) {
+		res.push_back(std::make_tuple(i, j, weight));
+		i += 1;
+		i = i % numNeuronsFirstLayer;
+	}
+
+	return res;
 }

@@ -1,19 +1,14 @@
 Mapping Config:
 
+FullyConnected: Yes
+
 Input Map:
-Input: 0, Network: 0, Weight: 4
-Input: 1, Network: 1
-Input: 2, Network: 2
-Input: 3, Network: 3, Weight: 2
-Input: 0, Network: 4, Weight: 4
-Input: 1, Network: 5
-Input: 2, Network: 6
-Input: 3, Network: 7, Weight: 2
+Inputs: 4
+Layer 0 Neurons: 2
+DefaultWeight: 3
 End
 
 Layer Map 0:
-Layer 0: 0, Layer 1: 0, Weight: 4
-Layer 0: 1, Layer 1: 1, Weight: 4
-Layer 0: 0, Layer 1: 2, Weight: 4
-Layer 0: 1, Layer 1: 3, Weight: 4
+Layer 0 Neurons: 2
+Layer 1 Neurons: 2
 End

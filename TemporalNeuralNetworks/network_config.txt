@@ -12,5 +12,5 @@ End
 
 Layer 1:
 Neurons: 2
-Threshold: 3
+Threshold: 1
 End

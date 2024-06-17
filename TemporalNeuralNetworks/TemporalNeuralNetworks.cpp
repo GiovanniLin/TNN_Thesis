@@ -150,25 +150,15 @@ int run(
         fireSpikes(simSpikes, inputs, i);
 
         for (int j = 0; j < layers.size(); j++) {
-            //for (int k = 0; k < layers[j].size(); k++) {
-            //    layers[j][k].checkForIF();
-            //    layers[j][k].checkForSpike();
-            //    layers[j][k].checkThreshold();
-            //    if (layers[j][k].output) {
-            //        std::cout << "Layer " << j << " Neuron " << k << " body potential over threshold at time " << i << "\n";
-            //    }
-            //}
-            std::cout << "Checking layer: " << j << " \n";
             layers[j].checkNeuronIFs();
             layers[j].checkNeuronSpikes();
             layers[j].checkNeuronThresholds();
-            std::cout << "\n";
             
             std::vector<int> outputs = layers[j].checkOutputs();
 
             if (!outputs.empty()) {
                 for (auto k : outputs) {
-                    std::cout << "Layer " << j << " Neuron " << k << " body potential over threshold at time " << i << "\n";
+                    std::cout << "Layer " << j << ", Neuron " << k << " generated output spike at time " << i << "\n";
                 }
             }
         }
