@@ -299,11 +299,6 @@ std::vector<std::tuple<int, int, int>> MappingConfigurator::layerMapFCHandler()
 	while (mappingConfig_.isNextLine()) {
 		std::vector<std::string> nextLine = mappingConfig_.readNextLineSplit(" ");
 		if (!nextLine.empty()) {
-			std::cout << "Next Line: \n";
-			for (int i = 0; i < nextLine.size(); ++i) {
-				std::cout << nextLine[i] << " \n";
-			}
-
 			if (nextLine[0] == "End") {
 				break;
 			}
