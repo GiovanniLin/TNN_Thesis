@@ -5,7 +5,12 @@ Neuron::Neuron(int numInputs, int threshold, int ifType) {
 	this->inputs = inputs;
 	this->threshold = threshold; // Threshold potential of the neuron
 	this->ifType = IntegrateFire::chooseIntegrateFire(ifType, numInputs);
-	this->output = false; // Output connection, for now this defaults to a new connection with weight 0, later add option to set output
+	this->output = false;
+}
+
+void Neuron::setIFThreshold(int ifThreshold)
+{
+	this->ifType->setIFThreshold(ifThreshold);
 }
 
 void Neuron::overwriteInput(int index, int weight, bool* input)
@@ -38,6 +43,9 @@ void Neuron::checkForSpike()
 		if (*(this->inputs[i]->spike)) {
 			//std::cout << "Spike detected on input: " << i << " \n";
 			this->ifType->setSpikeFlag(i);
+			if (inputs[i]->weight >= this->ifType->getIFThreshold() && this->ifType->getIFThreshold() > 0) {
+				this->integrateFire(i);
+			}
 		}
 	}
 }

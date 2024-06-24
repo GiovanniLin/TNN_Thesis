@@ -13,12 +13,12 @@ NetworkConfigurator::NetworkConfigurator(std::string networkConfig) : networkCon
         if (!nextLine.empty()) {
             configHandler(nextLine);
         }
-        if (numInputs != -1 && numLayers != -1 && ifType != -1 && fullConfigure != -1) {
+        if (numInputs != -1 && numLayers != -1 && ifType != -1 && ifThreshold != -1 && fullConfigure != -1) {
             break;
         }
     }
 
-    if (numInputs == -1 || numLayers == -1 || ifType == -1 || fullConfigure == -1) {
+    if (numInputs == -1 || numLayers == -1 || ifType == -1 || ifThreshold == -1 || fullConfigure == -1) {
         throw std::runtime_error("Network configuration failed, one of four arguments (IntegrateFireType, Layers, Inputs, FullConfigure) not specified");
     }
 }
@@ -41,13 +41,24 @@ void NetworkConfigurator::setNumLayers(int numLayers)
     this->numLayers = numLayers;
 }
 
-int NetworkConfigurator::getIFType() {
+int NetworkConfigurator::getIFType() 
+{
     return ifType;
 }
 
 void NetworkConfigurator::setIFType(int ifType)
 {
     this->ifType = ifType;
+}
+
+int NetworkConfigurator::getIFThreshold()
+{
+    return ifThreshold;
+}
+
+void NetworkConfigurator::setIFThreshold(int ifThreshold)
+{
+    this->ifThreshold = ifThreshold;
 }
 
 void NetworkConfigurator::setFullConfigure(int fullConfigure)
@@ -58,17 +69,13 @@ void NetworkConfigurator::setFullConfigure(int fullConfigure)
 std::vector<Layer> NetworkConfigurator::createLayers()
 {
     std::vector<Layer> res;
-    
-    //int counter = 0;
 
     while (networkConfig_.isNextLine()) {
         std::vector<std::string> nextLine = networkConfig_.readNextLineSplit(" ");
         if (!nextLine.empty()) {
-            //std::cout << "Creating layer " << counter << " \n";
             Layer v = layerHandler(nextLine);
             if (!v.neurons.empty()) {
                 res.push_back(v);
-                //counter++;
             }
         }
     }
@@ -87,6 +94,9 @@ void NetworkConfigurator::configHandler(std::vector<std::string> v)
 {
     if (v[0] == "IntegrateFireType:") {
         setIFType(std::stoi(v[1]));
+    }
+    else if (v[0] == "IntegrateFireThreshold:") {
+        setIFThreshold(std::stoi(v[1]));
     }
     else if (v[0] == "Layers:") {
         setNumLayers(std::stoi(v[1]));
@@ -123,30 +133,30 @@ Layer NetworkConfigurator::layerHandler(std::vector<std::string> v)
                             break;
                         }
                         else if (nextLine[0] == "Neuron") {
-                            //std::cout << "Found keyword '" << nextLine[0] << "' \n";
                             if (neuronCounter != std::stoi(nextLine[1])) {
                                 throw std::runtime_error("Network configuration failed, incorrect numbering of neurons \n");
                             }
 
-                            //std::cout << "Numbering of Neurons correct \n";
                             if (nextLine[2] != "inputs:") {
                                 throw std::runtime_error("Network configuration failed, invalid formatting of neuron. Correct formatting is 'Neuron # inputs: #, threshold: #' \n");
                             }
 
-                            //std::cout << "Found keyword '" << nextLine[2] << "' \n";
                             int neuronNumInputs = std::stoi(nextLine[3]);
 
-                            //std::cout << "Neuron number of inputs set \n";
 
                             if (nextLine[4] != "threshold:") {
                                 throw std::runtime_error("Network configuration failed, invalid formatting of neuron. Correct formatting is 'Neuron # inputs: #, threshold: #' \n");
                             }
 
-                            //std::cout << "Found keyword'" << nextLine[4] << "' \n";
                             int neuronThreshold = std::stoi(nextLine[5]);
 
-                            //std::cout << "Neuron threshold set \n";
-                            res.addNeuron(Neuron(neuronNumInputs, neuronThreshold, ifType));
+                            Neuron toAdd = Neuron(neuronNumInputs, neuronThreshold, ifType);
+
+                            if (ifThreshold > 0) {
+                                toAdd.setIFThreshold(ifThreshold);
+                            }
+
+                            res.addNeuron(toAdd);
                             neuronCounter += 1;
                         }
                         else {
@@ -194,10 +204,22 @@ Layer NetworkConfigurator::layerHandler(std::vector<std::string> v)
 
                 for (int i = 0; i < numNeurons; ++i) {
                     if (currentLayer == 0) {
-                        res.addNeuron(Neuron(numInputs, layerThreshold, ifType));
+                        Neuron toAdd = Neuron(numInputs, layerThreshold, ifType);
+
+                        if (ifThreshold > 0) {
+                            toAdd.setIFThreshold(ifThreshold);
+                        }
+
+                        res.addNeuron(toAdd);
                     }
                     else {
-                        res.addNeuron(Neuron(numNeuronsPrevLayer, layerThreshold, ifType));
+                        Neuron toAdd = Neuron(numNeuronsPrevLayer, layerThreshold, ifType);
+
+                        if (ifThreshold > 0) {
+                            toAdd.setIFThreshold(ifThreshold);
+                        }
+
+                        res.addNeuron(toAdd);
                     }
                 }
 

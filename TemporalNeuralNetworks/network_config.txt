@@ -1,6 +1,7 @@
 Network Config:
 
 IntegrateFireType: 0
+IntegrateFireThreshold: 5
 Layers: 2
 Inputs: 4
 FullConfigure: No

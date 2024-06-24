@@ -27,6 +27,16 @@ RampIntegrateFire::RampIntegrateFire(int numInputs)
 	this->spikeFlag = std::vector<bool>(numInputs, false);
 }
 
+int RampIntegrateFire::getIFThreshold()
+{
+	return rifThreshold;
+}
+
+void RampIntegrateFire::setIFThreshold(int ifThreshold)
+{
+	this->rifThreshold = ifThreshold;
+}
+
 void RampIntegrateFire::accumulatePotential(int input, int weight)
 {
 	if (this->rifCounter[input] < weight) {

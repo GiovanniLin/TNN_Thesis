@@ -4,6 +4,7 @@ For each i or n, number starts at 0
 Network Config:
 
 IntegrateFireType: (number)\
+IntegrateFireThreshold: (number, use 0 if not necessary)\
 Layers: (number)\
 Inputs: (number)\
 FullConfigure: (Yes or No)

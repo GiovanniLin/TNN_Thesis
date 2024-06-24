@@ -15,6 +15,7 @@ public:
 	int threshold; // Synaptic threshold
 	std::shared_ptr<IntegrateFire> ifType;
 	bool output; // Output
+	void setIFThreshold(int ifThreshold);
 	void overwriteInput(int index, int weight, bool* input);
 	void integrateFire(int input);
 	void checkThreshold();
