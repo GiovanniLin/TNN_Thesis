@@ -101,11 +101,12 @@ int main()
     else {
         std::cout << "No output spike \n\n";
     }
-    std::cout << "Final body potential of neuron 1A: " << layers[0].neurons[0].currentBodyPotential() << "\n";
-    std::cout << "Final body potential of neuron 1B: " << layers[0].neurons[1].currentBodyPotential() << "\n";
-    std::cout << "Final body potential of neuron 2A: " << layers[1].neurons[0].currentBodyPotential() << "\n";
-    std::cout << "Final body potential of neuron 2B: " << layers[1].neurons[1].currentBodyPotential() << "\n";
-    //std::cout << "Neuron input 0 spike: " << neuron.inputs[0]->getSpike() << "\n";
+
+    for (int i = 0; i < layers.size(); ++i) {
+        for (int j = 0; j < layers[i].neurons.size(); ++j) {
+            std::cout << "Final body potential of Layer " << i << " Neuron " << j << ": " << layers[i].neurons[j].currentBodyPotential() << " \n";
+        }
+    }
 
     // Delete dynamically allocated array for inputs
     delete[] inputs;
@@ -122,17 +123,20 @@ int run(
     std::vector<std::tuple<int, int>> spikes)
 {
     int outputTime = 0;
+    bool stopRunning = false;
 
     std::cout << "Connecting inputs \n";
     connectInputs(inputs, layers[0], inputMap);
 
     std::cout << "Connecting layers \n";
-    // layers[1][0].overwriteInput(0, 4, &(layers[0][0].output));
     connectLayers(layers[0], layers[1], layerMap);
 
-    // Output of the system
-    bool& finalOutputA = layers[1].neurons[0].output;
-    bool& finalOutputB = layers[1].neurons[1].output;
+
+    std::vector<std::reference_wrapper<bool>> finalOutput;
+
+    for (int i = 0; i < layers[layers.size() - 1].neurons.size(); ++i) {
+        finalOutput.push_back(layers[layers.size() - 1].neurons[i].output);
+    }
 
     std::cout << "Sorting Spikes \n";
     std::sort(spikes.begin(), spikes.end(), sortbysec);
@@ -163,33 +167,30 @@ int run(
             }
         }
 
-        std::cout << "Body potential at time " << i << " for neuron 1A after checks: " << layers[0].neurons[0].currentBodyPotential() << "\n";
-        std::cout << "Body potential at time " << i << " for neuron 1B after checks: " << layers[0].neurons[1].currentBodyPotential() << "\n";
-        std::cout << "Body potential at time " << i << " for neuron 2A after checks: " << layers[1].neurons[0].currentBodyPotential() << "\n";
-        std::cout << "Body potential at time " << i << " for neuron 2B after checks: " << layers[1].neurons[1].currentBodyPotential() << "\n";
+        for (int j = 0; j < layers.size(); ++j) {
+            for (int k = 0; k < layers[j].neurons.size(); ++k) {
+                std::cout << "Body potential at time " << i << " of Layer " << j << " Neuron " << k << ": " << layers[j].neurons[k].currentBodyPotential() << " \n";
+            }
+        }
 
-        if (finalOutputA) {
-            outputTime = i;
-            std::cout << "Output from neuron 2A \n";
-            std::cout << "\n";
-            break; // Stop running because output generated
+        for (int j = 0; j < finalOutput.size(); ++j) {
+            if (finalOutput[j]) {
+                outputTime = i;
+                std::cout << "Output from Layer " << (layers.size() - 1) << " Neuron " << j << " \n";
+                std::cout << "\n";
+                stopRunning = true;
+                break;
+            }
         }
-        else if (finalOutputB) {
-            outputTime = i;
-            std::cout << "Output from neuron 2B \n";
-            std::cout << "\n";
-            break; // Stop running because output generated
+
+        if (stopRunning) {
+            break;
         }
-        resetSpikes(inputs);
-        
-        // Reset output spikes
-        //for (int j = 0; j < layers.size(); j++) {
-        //    for (int k = 0; k < layers[j].size(); k++) {
-        //        layers[j][k].output = false;
-        //    }
-        //}
+
+        resetSpikes(inputs); // Falling edge of each spike, for spike validity
+
         for (int j = 0; j < layers.size(); j++) {
-            layers[j].removeOutputSpikes();
+            layers[j].removeOutputSpikes(); // Falling edge of each spike, for spike validity
         }
 
         // Add white space after 1 cycle
@@ -208,15 +209,12 @@ void connectInputs(bool inputs[], Layer& inputLayer, std::vector<std::tuple<int,
     for (auto mapping : inputMap) {
 
         int inputIndex = std::get<0>(mapping);
-        //std::cout << "Input index: " << inputIndex << " \n";
 
         std::tuple<int, int> neuronIndices = getNeuronInputIndex(inputLayer, mapping);
 
         int neuronIndex = std::get<0>(neuronIndices);
-        //std::cout << "First Layer Neuron index: " << neuronIndex << " \n";
 
         int neuronInputIndex = std::get<1>(neuronIndices);
-        //std::cout << "First Layer Neuron input index: " << neuronInputIndex << " \n\n";
 
         int weight = std::get<2>(mapping);
         bool* ptr = &(inputs[inputIndex]);
@@ -230,15 +228,12 @@ void connectLayers(Layer& firstLayer, Layer& secondLayer, std::vector<std::tuple
 {
     for (auto mapping : layerMap) {
         int firstLayerNeuronIndex = std::get<0>(mapping);
-        //std::cout << "firstLayerNeuronIndex: " << firstLayerNeuronIndex << " \n";
 
         std::tuple<int, int> secondLayerNeuronIndices = getNeuronInputIndex(secondLayer, mapping);
 
         int secondLayerNeuronIndex = std::get<0>(secondLayerNeuronIndices);
-        //std::cout << "secondLayerNeuronIndex: " << secondLayerNeuronIndex << " \n";
 
         int secondLayerNeuronInputIndex = std::get<1>(secondLayerNeuronIndices);
-        //std::cout << "secondLayerNeuronInputIndex: " << secondLayerNeuronInputIndex << " \n\n";
 
         int weight = std::get<2>(mapping);
         bool* ptr = &(firstLayer.neurons[firstLayerNeuronIndex].output);
@@ -292,7 +287,3 @@ void resetSpikes(bool inputs[])
     }
 }
 
-
-
-// Run program: Ctrl + F5 or Debug > Start Without Debugging menu
-// Debug program: F5 or Debug > Start Debugging menu
