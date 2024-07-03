@@ -42,6 +42,9 @@
     <ClCompile Include="Layer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="STDPConfigurator.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="TemporalNeuralNetworks.h">
@@ -71,10 +74,14 @@
     <ClInclude Include="Layer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="STDPConfigurator.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Text Include="network_config.txt" />
     <Text Include="mapping_config.txt" />
     <Text Include="spike_config.txt" />
+    <Text Include="stdp_config.txt" />
   </ItemGroup>
 </Project>

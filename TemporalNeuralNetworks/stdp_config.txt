@@ -1,0 +1,12 @@
+STDP Config:
+
+C-TNN:
+Capture: 0.0625
+Backoff: 0.0625
+Search: 0
+
+R-TNN:
+RewardPotentiationDepression: 1.5
+RewardWindow: 2
+PunishmentPotentiationDepression: 1.5
+PunishmentWindow: 16

@@ -12,6 +12,7 @@
 #include "MappingConfigurator.h"
 #include "SpikeConfigurator.h"
 #include "Layer.h"
+#include "STDPConfigurator.h"
 
 int run(
 	int cycles, 

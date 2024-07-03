@@ -3,7 +3,7 @@
 #include <iostream>
 #include <vector>
 #include "Neuron.h"
-#include "layer.h"
+#include "Layer.h"
 
 class NetworkConfigurator
 {

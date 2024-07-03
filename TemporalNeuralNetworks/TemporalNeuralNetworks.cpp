@@ -21,11 +21,24 @@ int main()
         return 1;
     }
 
-    // Output to console what Integrate and Fire type is used
     std::cout << "Network Configuration: \n";
     std::cout << INDENT << "Number of Inputs: " << networkConfig.getNumInputs() << "\n";
     std::cout << INDENT << "Number of Layers: " << networkConfig.getNumLayers() << " \n";
     std::cout << INDENT << "IF Type: " << networkConfig.getIFType() << "\n\n";
+
+    std::cout << "Reading STDP Configuration \n\n";
+    STDPConfigurator stdpConfig("stdp_config.txt");
+
+    std::cout << "STDP Configuration: \n";
+    std::cout << INDENT << "C-TNN Parameters: \n";
+    std::cout << INDENT << INDENT << "Capture: " << stdpConfig.getCapture() << "\n";
+    std::cout << INDENT << INDENT << "Backoff: " << stdpConfig.getBackoff() << "\n";
+    std::cout << INDENT << INDENT << "Search: " << stdpConfig.getSearch() << "\n";
+    std::cout << INDENT << "R-TNN Parameters: \n";
+    std::cout << INDENT << INDENT << "Reward Potentiation and Depression: " << stdpConfig.getRewardPD() << "\n";
+    std::cout << INDENT << INDENT << "Reward Window: " << stdpConfig.getRewardW() << "\n";
+    std::cout << INDENT << INDENT << "Punishment Potentiation and Depression: " << stdpConfig.getPunishmentPD() << "\n";
+    std::cout << INDENT << INDENT << "Punishment Window: " << stdpConfig.getPunishmentW() << "\n\n";
 
     std::cout << "Reading Mapping Configuration \n\n";
     MappingConfigurator mappingConfig("mapping_config.txt");

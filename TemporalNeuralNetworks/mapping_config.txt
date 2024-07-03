@@ -11,4 +11,5 @@ End
 Layer Map 0:
 Layer 0 Neurons: 2
 Layer 1 Neurons: 2
+DefaultWeight: 2
 End
