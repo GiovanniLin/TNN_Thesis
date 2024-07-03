@@ -31,6 +31,20 @@ Neurons: (number)\
 Threshold: (number)\
 End
 
+# Formatting of stdp_config.txt
+STDP Config:
+
+C-TNN:\
+Capture: (number)\
+Backoff: (number)\
+Search: (number)
+
+R-TNN:
+RewardPotentiationDepression: (number)\
+RewardWindow: (number)\
+PunishmentPotentiationDepression: (number)\
+PunishmentWindow: (number)
+
 # Formatting of mapping_config.txt
 Mapping Config:
 
@@ -66,3 +80,14 @@ Layer 0: 1, Layer 1: 1, Weight: 4\
 End
 
 (this is just an example, use any numbers you like)
+
+# Formatting of spike_config.txt
+Spike Config:
+
+Spikes:\
+Input: (number), Time: (number)\
+Input: (number), Time: (number)\
+...\
+Input: (number), Time: (number)\
+Input: (number), Time: (number)\
+End
