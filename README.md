@@ -10,7 +10,7 @@ Inputs: (number)\
 FullConfigure: (Yes or No)
 
 ### FullConfigure: Yes
-Layer i:\
+Layer i (i starts at 0):\
 Neuron n inputs: (number), threshold: (number)\
 Neuron n+1 inputs: (number), threshold: (number)\
 End
@@ -21,7 +21,7 @@ Neuron n+1 inputs: (number), threshold: (number)\
 End
 
 ### FullConfigure: No
-Layer i:\
+Layer i (i starts at 0):\
 Neurons: (number)\
 Threshold: (number)\
 End
@@ -39,7 +39,7 @@ Capture: (number)\
 Backoff: (number)\
 Search: (number)
 
-R-TNN:
+R-TNN:\
 RewardPotentiationDepression: (number)\
 RewardWindow: (number)\
 PunishmentPotentiationDepression: (number)\
@@ -57,7 +57,7 @@ Layer 0 Neurons: (number)\
 DefaultWeight: (number) (optional, remove if not necessary)\
 End
 
-Layer Map i:\
+Layer Map i (i starts at 0):\
 Layer i Neurons: (number)\
 Layer i+1 Neurons: (number)\
 End
