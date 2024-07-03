@@ -24,6 +24,17 @@ int main()
     std::cout << "Network Configuration: \n";
     std::cout << INDENT << "Number of Inputs: " << networkConfig.getNumInputs() << "\n";
     std::cout << INDENT << "Number of Layers: " << networkConfig.getNumLayers() << " \n";
+    for (int i = 0; i < layers.size(); ++i) {
+        if (layers[i].getTypeTNN() == 0) {
+            std::cout << INDENT << "Layer " << i << " Type: C-TNN \n";
+        }
+        else if (layers[i].getTypeTNN() == 1) {
+            std::cout << INDENT << "Layer " << i << " Type: R-TNN \n";
+        }
+        else {
+            std::cout << INDENT << "Layer " << i << " Type: Unknown, Please check validity of parameter 'Type: #' \n";
+        }
+    }
     std::cout << INDENT << "IF Type: " << networkConfig.getIFType() << "\n\n";
 
     std::cout << "Reading STDP Configuration \n\n";

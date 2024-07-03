@@ -9,9 +9,11 @@ FullConfigure: No
 Layer 0:
 Neurons: 2
 Threshold: 6
+Type: 0
 End
 
 Layer 1:
 Neurons: 2
 Threshold: 2
+Type: 1
 End

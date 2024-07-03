@@ -20,6 +20,16 @@ void Layer::setWTA(bool b)
 	wta = b;
 }
 
+int Layer::getTypeTNN()
+{
+	return typeTNN;
+}
+
+void Layer::setTypeTNN(int typeTNN)
+{
+	this->typeTNN = typeTNN;
+}
+
 void Layer::checkNeuronIFs()
 {
 	for (int i = 0; i < neurons.size(); ++i) {

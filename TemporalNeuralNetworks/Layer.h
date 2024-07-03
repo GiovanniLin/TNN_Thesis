@@ -12,6 +12,8 @@ public:
 	void setNeurons(std::vector<Neuron> v);
 	bool getWTA();
 	void setWTA(bool b);
+	int getTypeTNN();
+	void setTypeTNN(int typeTNN);
 	void checkNeuronIFs();
 	void checkNeuronSpikes();
 	void checkNeuronThresholds();
@@ -21,5 +23,6 @@ private:
 	bool wta =  false;
 	int highestBodyPotential = -1;
 	int highestBodyPotentialIndex = -1;
+	int typeTNN = -1; // -1 is not set, 0 is C-TNN, 1 is R-TNN
 };
 
