@@ -24,11 +24,13 @@ End
 Layer i (i starts at 0):\
 Neurons: (number)\
 Threshold: (number)\
+Type: (0 or 1)\
 End
 
 Layer i+1:\
 Neurons: (number)\
 Threshold: (number)\
+Type: (0 or 1)\
 End
 
 # Formatting of stdp_config.txt
