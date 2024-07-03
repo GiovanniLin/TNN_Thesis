@@ -15,12 +15,12 @@ void Neuron::setIFThreshold(int ifThreshold)
 
 void Neuron::overwriteInput(int index, int weight, bool* input)
 {
-	this->inputs[index] = std::make_shared<Connection>(input, weight);
+	this->inputs[index] = std::make_shared<Connection>(input, (double) weight);
 }
 
 void Neuron::integrateFire(int input)
 {
-	this->ifType->accumulatePotential(input, this->inputs[input]->weight);
+	this->ifType->accumulatePotential(input, inputs[input]->getWeight());
 }
 
 void Neuron::checkThreshold()
@@ -43,7 +43,7 @@ void Neuron::checkForSpike()
 		if (*(this->inputs[i]->spike)) {
 			//std::cout << "Spike detected on input: " << i << " \n";
 			this->ifType->setSpikeFlag(i);
-			if (inputs[i]->weight >= this->ifType->getIFThreshold() && this->ifType->getIFThreshold() > 0) {
+			if (inputs[i]->getWeight() >= this->ifType->getIFThreshold() && this->ifType->getIFThreshold() > 0) {
 				this->integrateFire(i);
 			}
 		}
@@ -62,4 +62,9 @@ void Neuron::checkForIF()
 void Neuron::removeOutputSpike()
 {
 	this->output = false;
+}
+
+void Neuron::updateWeight(int index, int typeTNN)
+{
+
 }

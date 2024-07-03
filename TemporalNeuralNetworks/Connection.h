@@ -6,16 +6,20 @@ class Connection
 {
 public:
 	Connection(); // Default constructor for making arrays and vectors
-	Connection(int weight); // If not default input, use this.
-	Connection(bool* input, int weight);
+	Connection(double weight); // If not default input, use this.
+	Connection(bool* input, double weight);
 	bool* spike; // Always false when constructing
-	int weight; // Only for the neuron having this connection has input
 	bool dynamicAlloc;
-	void setSpike(bool* spike);
 	bool getSpike();
+	void setSpike(bool* spike);
+	int getWeight();
+	void setWeight(double weight);
 	void setDynamicAlloc(bool dynamicAlloc);
+	void updateWeightCTNN();
+	void updateWeightRTNN(int decayCounter);
 	~Connection();
 private:
 	bool defaultSpike = false;
+	double weight;
 };
 

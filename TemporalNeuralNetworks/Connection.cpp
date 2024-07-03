@@ -9,7 +9,7 @@ Connection::Connection() : spike(nullptr)
 }
 
 // Constructor for Connection without input
-Connection::Connection(int weight) : spike(nullptr)
+Connection::Connection(double weight) : spike(nullptr)
 {
 	this->weight = weight;
 	this->dynamicAlloc = false;
@@ -17,7 +17,7 @@ Connection::Connection(int weight) : spike(nullptr)
 
 // Connection: axon-to-synapse-to-dendrite-to-neuron body
 // Axon (output of a neuron) can have synapses (connection areas) to multiple dendrites (inputs of neurons)
-Connection::Connection(bool* input, int weight) : spike(input)
+Connection::Connection(bool* input, double weight) : spike(input)
 {
 	this->weight = weight;
 	this->dynamicAlloc = false;
@@ -29,11 +29,6 @@ Connection::~Connection() {
 	}
 }
 
-void Connection::setSpike(bool* spike)
-{
-	this->spike = spike;
-}
-
 bool Connection::getSpike()
 {
 	if (spike != nullptr) {
@@ -43,6 +38,32 @@ bool Connection::getSpike()
 	return false;
 }
 
-void Connection::setDynamicAlloc(bool dynamicAlloc) {
+void Connection::setSpike(bool* spike)
+{
+	this->spike = spike;
+}
+
+int Connection::getWeight()
+{
+	return int (weight + 0.5);
+}
+
+void Connection::setWeight(double weight)
+{
+	this->weight = weight;
+}
+
+void Connection::setDynamicAlloc(bool dynamicAlloc)
+{
 	this->dynamicAlloc = dynamicAlloc;
+}
+
+void Connection::updateWeightCTNN()
+{
+
+}
+
+void Connection::updateWeightRTNN(int decayCounter)
+{
+
 }

@@ -23,5 +23,6 @@ public:
 	void checkForSpike();
 	void checkForIF();
 	void removeOutputSpike();
+	void updateWeight(int index, int typeTNN);
 };
 
