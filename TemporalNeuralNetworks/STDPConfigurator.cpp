@@ -16,12 +16,12 @@ STDPConfigurator::STDPConfigurator(std::string stdpConfig) : stdpConfig_(FileRea
 		// if (numInputs != -1 && numLayers != -1 && ifType != -1 && ifThreshold != -1 && fullConfigure != -1) {
 			// break;
 		// }
-		if (capture != -1 && backoff != -1 && search != -1 && rewardPD != -1 && rewardW != -1 && punishmentPD != -1 && punishmentW != -1) {
+		if (capture != -1 && backoff != -1 && search != -1 && rewardP != -1 && rewardD != -1 && rewardW != -1 && punishmentP != -1 && punishmentD != -1 && punishmentW != -1) {
 			break;
 		}
 	}
 
-	if (capture == -1 || backoff == -1 || search == -1 || rewardPD == -1 || rewardW == -1 || punishmentPD == -1 || punishmentW == -1) {
+	if (capture == -1 || backoff == -1 || search == -1 || rewardP == -1 || rewardD == -1 || rewardW == -1 || punishmentP == -1 || punishmentD == -1 || punishmentW == -1) {
 		throw std::runtime_error("STDP configuration failed, one of seven STDP parameters was not set.");
 	}
 }
@@ -56,14 +56,24 @@ void STDPConfigurator::setSearch(double search)
 	this->search = search;
 }
 
-double STDPConfigurator::getRewardPD()
+double STDPConfigurator::getRewardP()
 {
-	return rewardPD;
+	return rewardP;
 }
 
-void STDPConfigurator::setRewardPD(double rewardPD)
+void STDPConfigurator::setRewardP(double rewardP)
 {
-	this->rewardPD = rewardPD;
+	this->rewardP = rewardP;
+}
+
+double STDPConfigurator::getRewardD()
+{
+	return rewardD;
+}
+
+void STDPConfigurator::setRewardD(double rewardD)
+{
+	this->rewardD = rewardD;
 }
 
 int STDPConfigurator::getRewardW()
@@ -76,14 +86,24 @@ void STDPConfigurator::setRewardW(int rewardW)
 	this->rewardW = rewardW;
 }
 
-double STDPConfigurator::getPunishmentPD()
+double STDPConfigurator::getPunishmentP()
 {
-	return punishmentPD;
+	return punishmentP;
 }
 
-void STDPConfigurator::setPunishmentPD(double punishmentPD)
+void STDPConfigurator::setPunishmentP(double punishmentP)
 {
-	this->punishmentPD = punishmentPD;
+	this->punishmentP = punishmentP;
+}
+
+double STDPConfigurator::getPunishmentD()
+{
+	return punishmentD;
+}
+
+void STDPConfigurator::setPunishmentD(double punishmentD)
+{
+	this->punishmentD = punishmentD;
 }
 
 int STDPConfigurator::getPunishmentW()
@@ -142,14 +162,20 @@ void STDPConfigurator::configHandlerRTNN()
 	while (stdpConfig_.isNextLine()) {
 		std::vector<std::string> v = stdpConfig_.readNextLineSplit(" ");
 		if (!v.empty()) {
-			if (v[0] == "RewardPotentiationDepression:") {
-				setRewardPD(std::stod(v[1]));
+			if (v[0] == "RewardPotentiation:") {
+				setRewardP(std::stod(v[1]));
+			}
+			else if (v[0] == "RewardDepression:") {
+				setRewardD(std::stod(v[1]));
 			}
 			else if (v[0] == "RewardWindow:") {
 				setRewardW(std::stoi(v[1]));
 			}
-			else if (v[0] == "PunishmentPotentiationDepression:") {
-				setPunishmentPD(std::stod(v[1]));
+			else if (v[0] == "PunishmentPotentiation:") {
+				setPunishmentP(std::stod(v[1]));
+			}
+			else if (v[0] == "PunishmentDepression:") {
+				setPunishmentD(std::stod(v[1]));
 			}
 			else if (v[0] == "PunishmentWindow:") {
 				setPunishmentW(std::stoi(v[1]));
@@ -158,12 +184,12 @@ void STDPConfigurator::configHandlerRTNN()
 				continue;
 			}
 		}
-		if (rewardPD != -1 && rewardW != -1 && punishmentPD != -1 && punishmentW != -1) {
+		if (rewardP != -1 && rewardD != -1 && rewardW != -1 && punishmentP != -1 && punishmentD != -1 && punishmentW != -1) {
 			break;
 		}
 	}
 
-	if (rewardPD == -1 || rewardW == -1 || punishmentPD == -1 || punishmentW == -1) {
+	if (rewardP == -1 || rewardD == -1 || rewardW == -1 || punishmentP == -1 || punishmentD == -1 || punishmentW == -1) {
 		throw std::runtime_error("STDP configuration failed, one of four R-TNN parameters (RewardPotentiationDepression, RewardWindow, PunishmentPotentiationDepression, PunishmentWindow) was not set");
 	}
 }

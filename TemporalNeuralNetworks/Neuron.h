@@ -5,6 +5,7 @@
 #include <memory>
 #include "Connection.h"
 #include "IntegrateFire.h"
+#include "STDPConfigurator.h"
 
 // Turn inputs into seperate object later so that the input, weight and RIF are paired
 class Neuron 
@@ -23,6 +24,6 @@ public:
 	void checkForSpike();
 	void checkForIF();
 	void removeOutputSpike();
-	void updateWeight(int index, int typeTNN);
+	void updateWeight(int index, int typeTNN, STDPConfigurator& config, int decayCounter, int operation);
 };
 

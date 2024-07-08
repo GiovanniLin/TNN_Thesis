@@ -13,12 +13,16 @@ public:
 	void setBackoff(double backoff);
 	double getSearch();
 	void setSearch(double search);
-	double getRewardPD();
-	void setRewardPD(double rewardPD);
+	double getRewardP();
+	void setRewardP(double rewardP);
+	double getRewardD();
+	void setRewardD(double rewardD);
 	int getRewardW();
 	void setRewardW(int rewardW);
-	double getPunishmentPD();
-	void setPunishmentPD(double punishmentPD);
+	double getPunishmentP();
+	void setPunishmentP(double punishmentP);
+	double getPunishmentD();
+	void setPunishmentD(double punishmentD);
 	int getPunishmentW();
 	void setPunishmentW(int punishmentW);
 	void configHandler(std::vector<std::string> v);
@@ -28,9 +32,11 @@ private:
 	double capture = -1;
 	double backoff = -1;
 	double search = -1;
-	double rewardPD = -1; // PD = Potentiation and Depression
+	double rewardP = -1; // P = Potentiation
+	double rewardD = -1; // D = Depression
 	int rewardW = -1; // W = Window
-	double punishmentPD = -1; // PD = Potentiation and Depression
+	double punishmentP = -1; // P = Potentiation
+	double punishmentD = -1; // D = Depression
 	int punishmentW = -1; // W = Window
 	FileReader stdpConfig_;
 };

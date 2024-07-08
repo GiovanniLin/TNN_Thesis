@@ -4,6 +4,7 @@
 #include "TemporalNeuralNetworks.h"
 
 const std::string INDENT = "    ";
+int reward = 1;
 
 int main()
 {
@@ -46,9 +47,11 @@ int main()
     std::cout << INDENT << INDENT << "Backoff: " << stdpConfig.getBackoff() << "\n";
     std::cout << INDENT << INDENT << "Search: " << stdpConfig.getSearch() << "\n";
     std::cout << INDENT << "R-TNN Parameters: \n";
-    std::cout << INDENT << INDENT << "Reward Potentiation and Depression: " << stdpConfig.getRewardPD() << "\n";
+    std::cout << INDENT << INDENT << "Reward Potentiation: " << stdpConfig.getRewardP() << "\n";
+    std::cout << INDENT << INDENT << "Reward Depression: " << stdpConfig.getRewardD() << "\n";
     std::cout << INDENT << INDENT << "Reward Window: " << stdpConfig.getRewardW() << "\n";
-    std::cout << INDENT << INDENT << "Punishment Potentiation and Depression: " << stdpConfig.getPunishmentPD() << "\n";
+    std::cout << INDENT << INDENT << "Punishment Potentiation: " << stdpConfig.getPunishmentP() << "\n";
+    std::cout << INDENT << INDENT << "Punishment Depression: " << stdpConfig.getPunishmentD() << "\n";
     std::cout << INDENT << INDENT << "Punishment Window: " << stdpConfig.getPunishmentW() << "\n\n";
 
     std::cout << "Reading Mapping Configuration \n\n";
@@ -117,8 +120,9 @@ int main()
     }
 
     std::cout << "Created Inputs \n";
-
+    
     int output = run(15, layers, inputs, inputMap, layerMap, spikes);
+
     if (output > 0) {
         std::cout << "Output spike generated at time " << output << "\n\n";
     }
@@ -129,6 +133,26 @@ int main()
     for (int i = 0; i < layers.size(); ++i) {
         for (int j = 0; j < layers[i].neurons.size(); ++j) {
             std::cout << "Final body potential of Layer " << i << " Neuron " << j << ": " << layers[i].neurons[j].currentBodyPotential() << " \n";
+        }
+        layers[i].updateWeights(stdpConfig, reward);
+    }
+
+    for (int i = 0; i < layers.size(); ++i) {
+        //for (int j = 0; j < layers[i].getInputTime().size(); j++) {
+        //    std::cout << "Input spike on Layer " << i << " on input " << j << " at time " << layers[i].getInputTime()[j] << " \n";
+        //}
+        //for (int j = 0; j < layers[i].getOutputTime().size(); j++) {
+        //    std::cout << "Output spike on Layer " << i << " on output " << j << " at time " << layers[i].getOutputTime()[j] << " \n";
+        //}
+        //for (int j = 0; j < layers[i].getDecayCounters().size(); j++) {
+        //    for (int k = 0; k < layers[i].getDecayCounters()[j].size(); ++k) {
+        //        std::cout << "Decay counter on Layer " << i << " Input " << j << " Neuron " << k << ": " << layers[i].getDecayCounters()[j][k] << " \n";
+        //    }
+        //}
+        for (int j = 0; j < layers[i].neurons.size(); ++j) {
+            for (int k = 0; k < layers[i].neurons[j].inputs.size(); ++k) {
+                std::cout << "Final weight of Layer " << i << " Neuron " << j << " Input " << k << " : " << layers[i].neurons[j].inputs[k]->getWeight() << " \n";
+            }
         }
     }
 
@@ -155,6 +179,14 @@ int run(
     std::cout << "Connecting layers \n";
     connectLayers(layers[0], layers[1], layerMap);
 
+    for (int i = 0; i < layers.size(); ++i) {
+        if (i == 0) {
+            layers[i].initializeVectors(int (sizeof(inputs)/sizeof(bool)), layers[i].neurons.size());
+        }
+        else {
+            layers[i].initializeVectors(layers[i-1].neurons.size(), layers[i].neurons.size());
+        }
+    }
 
     std::vector<std::reference_wrapper<bool>> finalOutput;
 
@@ -176,17 +208,27 @@ int run(
     std::cout << "Now running \n\n";
     for (int i = 0; i < cycles; i++) {
         fireSpikes(simSpikes, inputs, i);
+        for (int j = 0; j < (sizeof(inputs) / sizeof(bool)); ++j) {
+            if (inputs[j]) {
+                layers[0].setInputTime(j, i);
+                layers[0].resetCounters(j);
+            }
+        }
 
         for (int j = 0; j < layers.size(); j++) {
             layers[j].checkNeuronIFs();
-            layers[j].checkNeuronSpikes();
-            layers[j].checkNeuronThresholds();
+            layers[j].checkNeuronSpikes(i);
+            layers[j].checkNeuronThresholds(i);
             
             std::vector<int> outputs = layers[j].checkOutputs();
 
             if (!outputs.empty()) {
                 for (auto k : outputs) {
                     std::cout << "Layer " << j << ", Neuron " << k << " generated output spike at time " << i << "\n";
+                    if (j + 1 < layers.size()) {
+                        layers[j + 1].setInputTime(k, i);
+                        layers[j + 1].resetCounters(k);
+                    }
                 }
             }
         }
@@ -214,6 +256,7 @@ int run(
         resetSpikes(inputs); // Falling edge of each spike, for spike validity
 
         for (int j = 0; j < layers.size(); j++) {
+            layers[j].incrementCounters();
             layers[j].removeOutputSpikes(); // Falling edge of each spike, for spike validity
         }
 

@@ -20,7 +20,7 @@ void Neuron::overwriteInput(int index, int weight, bool* input)
 
 void Neuron::integrateFire(int input)
 {
-	this->ifType->accumulatePotential(input, inputs[input]->getWeight());
+	this->ifType->accumulatePotential(input, inputs[input]->getWeightRounded());
 }
 
 void Neuron::checkThreshold()
@@ -41,9 +41,8 @@ void Neuron::checkForSpike()
 {
 	for (size_t i = 0; i < this->inputs.size(); i++) {
 		if (*(this->inputs[i]->spike)) {
-			//std::cout << "Spike detected on input: " << i << " \n";
 			this->ifType->setSpikeFlag(i);
-			if (inputs[i]->getWeight() >= this->ifType->getIFThreshold() && this->ifType->getIFThreshold() > 0) {
+			if (inputs[i]->getWeightRounded() >= this->ifType->getIFThreshold() && this->ifType->getIFThreshold() > 0) {
 				this->integrateFire(i);
 			}
 		}
@@ -64,7 +63,15 @@ void Neuron::removeOutputSpike()
 	this->output = false;
 }
 
-void Neuron::updateWeight(int index, int typeTNN)
+void Neuron::updateWeight(int index, int typeTNN, STDPConfigurator& config, int decayCounter, int operation)
 {
-
+	if (typeTNN == 0) {
+		inputs[index]->updateWeightCTNN(config, operation);
+	}
+	else if (typeTNN == 1) {
+		inputs[index]->updateWeightRTNN(config, operation, decayCounter);
+	}
+	else {
+		throw std::runtime_error("Typing of Neuron has not been set in Layer");
+	}
 }

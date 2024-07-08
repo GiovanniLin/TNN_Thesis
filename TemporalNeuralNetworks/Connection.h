@@ -1,6 +1,7 @@
 #pragma once
 #include <memory>
 #include <iostream>
+#include "STDPConfigurator.h"
 
 class Connection
 {
@@ -12,11 +13,12 @@ public:
 	bool dynamicAlloc;
 	bool getSpike();
 	void setSpike(bool* spike);
-	int getWeight();
+	double getWeight();
+	int getWeightRounded();
 	void setWeight(double weight);
 	void setDynamicAlloc(bool dynamicAlloc);
-	void updateWeightCTNN();
-	void updateWeightRTNN(int decayCounter);
+	void updateWeightCTNN(STDPConfigurator& config, int operation);
+	void updateWeightRTNN(STDPConfigurator& config, int operation, int decayCounter);
 	~Connection();
 private:
 	bool defaultSpike = false;

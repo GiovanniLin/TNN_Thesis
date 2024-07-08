@@ -6,7 +6,9 @@ Backoff: 0.0625
 Search: 0
 
 R-TNN:
-RewardPotentiationDepression: 1.5
+RewardPotentiation: 1.5
+RewardDepression: 1.5
 RewardWindow: 2
-PunishmentPotentiationDepression: 1.5
+PunishmentPotentiation: 1.5
+PunishmentDepression: 1.5
 PunishmentWindow: 16

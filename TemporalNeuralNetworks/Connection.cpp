@@ -15,7 +15,7 @@ Connection::Connection(double weight) : spike(nullptr)
 	this->dynamicAlloc = false;
 }
 
-// Connection: axon-to-synapse-to-dendrite-to-neuron body
+// Connection: synapse (synaptic crossing) between system input or axon and dendrite
 // Axon (output of a neuron) can have synapses (connection areas) to multiple dendrites (inputs of neurons)
 Connection::Connection(bool* input, double weight) : spike(input)
 {
@@ -43,7 +43,12 @@ void Connection::setSpike(bool* spike)
 	this->spike = spike;
 }
 
-int Connection::getWeight()
+double Connection::getWeight()
+{
+	return weight;
+}
+
+int Connection::getWeightRounded()
 {
 	return int (weight + 0.5);
 }
@@ -58,12 +63,53 @@ void Connection::setDynamicAlloc(bool dynamicAlloc)
 	this->dynamicAlloc = dynamicAlloc;
 }
 
-void Connection::updateWeightCTNN()
+void Connection::updateWeightCTNN(STDPConfigurator& config, int operation)
 {
-
+	if (operation == 0) { // Capture
+		double update = weight + config.getCapture();
+		setWeight(update);
+	}
+	else if (operation == 1) { // Backoff
+		double update = weight - config.getBackoff();
+		setWeight(update);
+	}
+	else if (operation == 2) { // Search
+		double update = weight + config.getSearch();
+		setWeight(update);
+	}
+	else if (operation == 3) { // No-op
+		// Do nothing
+		return;
+	}
+	else {
+		throw std::runtime_error("Weight update error, invalid weight update operation for C-TNN.");
+	}
 }
 
-void Connection::updateWeightRTNN(int decayCounter)
+void Connection::updateWeightRTNN(STDPConfigurator& config, int operation, int decayCounter)
 {
-
+	if (operation == 0) { // Reward Potentiation
+		double count = std::min(decayCounter, config.getRewardW());
+		double rewardP = config.getRewardP() - (count * config.getRewardP() / config.getRewardW());
+		double update = weight + rewardP;
+		setWeight(update);
+	}
+	else if (operation == 1) { // Reward Depression
+		double count = std::min(decayCounter, config.getRewardW());
+		double rewardD = config.getRewardD() - (count * config.getRewardD() / config.getRewardW());
+		double update = weight - rewardD;
+		setWeight(update);
+	}
+	else if (operation == 2) { // Punishment Potentiation
+		double count = std::min(decayCounter, config.getPunishmentW());
+		double punishmentP = config.getPunishmentP() - (count * config.getPunishmentP() / config.getPunishmentW());
+		double update = weight + punishmentP;
+		setWeight(update);
+	}
+	else if (operation == 3) { // Punishment Depression
+		double count = std::min(decayCounter, config.getPunishmentW());
+		double punishmentD = config.getPunishmentD() - (count * config.getPunishmentD() / config.getPunishmentW());
+		double update = weight - punishmentD;
+		setWeight(update);
+	}
 }

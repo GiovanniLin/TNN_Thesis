@@ -30,6 +30,21 @@ void Layer::setTypeTNN(int typeTNN)
 	this->typeTNN = typeTNN;
 }
 
+std::vector<int> Layer::getInputTime()
+{
+	return inputTime;
+}
+
+std::vector<int> Layer::getOutputTime()
+{
+	return outputTime;
+}
+
+std::vector<std::vector<int>> Layer::getDecayCounters()
+{
+	return decayCounters;
+}
+
 void Layer::checkNeuronIFs()
 {
 	for (int i = 0; i < neurons.size(); ++i) {
@@ -37,14 +52,14 @@ void Layer::checkNeuronIFs()
 	}
 }
 
-void Layer::checkNeuronSpikes()
+void Layer::checkNeuronSpikes(int time)
 {
 	for (int i = 0; i < neurons.size(); ++i) {
 		neurons[i].checkForSpike();
 	}
 }
 
-void Layer::checkNeuronThresholds()
+void Layer::checkNeuronThresholds(int time)
 {
 	for (int i = 0; i < neurons.size(); ++i) {
 		// Only check thresholds, if no output spike has been generated yet (no winner yet)
@@ -83,6 +98,13 @@ void Layer::checkNeuronThresholds()
 			}
 		}
 	}
+
+	for (int i = 0; i < neurons.size(); ++i) {
+		if (neurons[i].output) {
+			setOutputTime(i, time);
+		}
+	}
+
 }
 
 std::vector<int> Layer::checkOutputs()
@@ -102,5 +124,124 @@ void Layer::removeOutputSpikes()
 {
 	for (int i = 0; i < neurons.size(); ++i) {
 		neurons[i].removeOutputSpike();
+	}
+}
+
+void Layer::updateWeights(STDPConfigurator& config, int reward)
+{
+	for (int i = 0; i < neurons.size(); ++i) {
+		for (int j = 0; j < neurons[i].inputs.size(); ++j) {
+			int operation = -1;
+			if (typeTNN == 0) {
+				operation = identifyWeightUpdateCTNN(j, i);
+				if (operation == -1) {
+					throw std::runtime_error("Cannot update weights, invalid C-TNN weight update input condition.");
+				}
+			}
+			else if (typeTNN == 1) {
+				operation = identifyWeightUpdateRTNN(reward, j, i);
+				if (operation == -1) {
+					throw std::runtime_error("Cannot update weights, invalid R-TNN weight update input condition.");
+				}
+			}
+			else {
+				throw std::runtime_error("Cannot update weights, layer TNN type was not set.");
+			}
+
+			if (operation == -1) {
+				throw std::runtime_error("Cannot update weights, invalid network state.");
+			}
+
+			neurons[i].updateWeight(j, typeTNN, config, decayCounters[j][i], operation);
+		}
+	}
+}
+
+void Layer::initializeVectors(int x, int y)
+{
+	for (int i = 0; i < x; ++i) {
+		std::vector<int> toAddA;
+		for (int j = 0; j < y; ++j) {
+			toAddA.push_back(-1);
+		}
+		decayCounters.push_back(toAddA);
+		inputTime.push_back(-1);
+	}
+	for (int i = 0; i < y; ++i) {
+		outputTime.push_back(-1);
+	}
+	incrementCounters();
+}
+
+void Layer::incrementCounters()
+{
+	for (int i = 0; i < decayCounters.size(); ++i) {
+		for (int j = 0; j < decayCounters[i].size(); ++j) {
+			decayCounters[i][j] += 1;
+		}
+	}
+}
+
+void Layer::setInputTime(int index, int value)
+{
+	inputTime[index] = value;
+}
+
+void Layer::setOutputTime(int index, int value)
+{
+	outputTime[index] = value;
+}
+
+void Layer::resetCounters(int index)
+{
+	for (int i = 0; i < decayCounters[index].size(); ++i) {
+		decayCounters[index][i] = 0;
+	}
+}
+
+// 0 is Capture, 1 is backoff, 2 is search, 3 is no-op, -1 is error
+// x is index of input, z is index of neuron/output
+int Layer::identifyWeightUpdateCTNN(int x, int z)
+{
+	if (inputTime[x] != -1 && outputTime[z] != -1 && inputTime[x] <= outputTime[z]) {
+		return 0;
+	}
+	else if (inputTime[x] != -1 && outputTime[z] != -1 && inputTime[x] > outputTime[z]) {
+		return 1;
+	}
+	else if (inputTime[x] != -1 && outputTime[z] == -1) {
+		return 2;
+	}
+	else if (inputTime[x] == -1 && outputTime[z] != -1) {
+		return 1;
+	}
+	else if (inputTime[x] == -1 && outputTime[z] == -1) {
+		return 3;
+	}
+	else {
+		return -1;
+	}
+}
+
+// 0 is Reward Potentiation, 1 Reward Depression, 2 Punishment Potentiaion, 3 Punishment Depression, -1 is error
+// r is reward, x is index of input, z is index of neuron/output
+// e is binary flag, true if x == z
+int Layer::identifyWeightUpdateRTNN(int r, int x, int z)
+{
+	bool e = inputTime[x] != -1 && outputTime[z] != -1;
+	if (r == 1 && e) {
+		return 0;
+	}
+	else if (r == 1 && !e) {
+		return 1;
+	}
+	else if (r == -1 && !e) {
+		return 2;
+	}
+	else if (r == -1 && e) {
+		return 3;
+	}
+	else {
+		return -1;
 	}
 }
