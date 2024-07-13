@@ -13,15 +13,12 @@ STDPConfigurator::STDPConfigurator(std::string stdpConfig) : stdpConfig_(FileRea
 		if (!nextLine.empty()) {
 			configHandler(nextLine);
 		}
-		// if (numInputs != -1 && numLayers != -1 && ifType != -1 && ifThreshold != -1 && fullConfigure != -1) {
-			// break;
-		// }
-		if (capture != -1 && backoff != -1 && search != -1 && rewardP != -1 && rewardD != -1 && rewardW != -1 && punishmentP != -1 && punishmentD != -1 && punishmentW != -1) {
+		if (capture != -1 && backoff != -1 && search != -1 && wMaxCTNN != -1 && rewardP != -1 && rewardD != -1 && rewardW != -1 && punishmentP != -1 && punishmentD != -1 && punishmentW != -1 && wMaxRTNN != -1) {
 			break;
 		}
 	}
 
-	if (capture == -1 || backoff == -1 || search == -1 || rewardP == -1 || rewardD == -1 || rewardW == -1 || punishmentP == -1 || punishmentD == -1 || punishmentW == -1) {
+	if (capture == -1 || backoff == -1 || search == -1 || wMaxCTNN == -1 || rewardP == -1 || rewardD == -1 || rewardW == -1 || punishmentP == -1 || punishmentD == -1 || punishmentW == -1 || wMaxRTNN == -1) {
 		throw std::runtime_error("STDP configuration failed, one of seven STDP parameters was not set.");
 	}
 }
@@ -44,6 +41,16 @@ double STDPConfigurator::getBackoff()
 void STDPConfigurator::setBackoff(double backoff)
 {
 	this->backoff = backoff;
+}
+
+double STDPConfigurator::getWMaxCTNN()
+{
+	return wMaxCTNN;
+}
+
+void STDPConfigurator::setWMaxCTNN(double wMaxCTNN)
+{
+	this->wMaxCTNN = wMaxCTNN;
 }
 
 double STDPConfigurator::getSearch()
@@ -116,6 +123,16 @@ void STDPConfigurator::setPunishmentW(int punishmentW)
 	this->punishmentW = punishmentW;
 }
 
+double STDPConfigurator::getWMaxRTNN()
+{
+	return wMaxRTNN;
+}
+
+void STDPConfigurator::setWMaxRTNN(double wMaxRTNN)
+{
+	this->wMaxRTNN = wMaxRTNN;
+}
+
 void STDPConfigurator::configHandler(std::vector<std::string> v)
 {
 	if (v[0] == "C-TNN:") {
@@ -143,16 +160,19 @@ void STDPConfigurator::configHandlerCTNN()
 			else if (v[0] == "Search:") {
 				setSearch(std::stod(v[1]));
 			}
+			else if (v[0] == "Wmax:") {
+				setWMaxCTNN(std::stod(v[1]));
+			}
 			else {
 				continue;
 			}
 		}
-		if (capture != -1 && backoff != -1 && search != -1) {
+		if (capture != -1 && backoff != -1 && search != -1 && wMaxCTNN != -1) {
 			break;
 		}
 	}
 
-	if (capture == -1 || backoff == -1 || search == -1) {
+	if (capture == -1 || backoff == -1 || search == -1 || wMaxCTNN == -1) {
 		throw std::runtime_error("STDP configuration failed, one of three C-TNN parameters (Capture, Backoff, Search) was not set");
 	}
 }
@@ -180,16 +200,19 @@ void STDPConfigurator::configHandlerRTNN()
 			else if (v[0] == "PunishmentWindow:") {
 				setPunishmentW(std::stoi(v[1]));
 			}
+			else if (v[0] == "Wmax:") {
+				setWMaxRTNN(std::stod(v[1]));
+			}
 			else {
 				continue;
 			}
 		}
-		if (rewardP != -1 && rewardD != -1 && rewardW != -1 && punishmentP != -1 && punishmentD != -1 && punishmentW != -1) {
+		if (rewardP != -1 && rewardD != -1 && rewardW != -1 && punishmentP != -1 && punishmentD != -1 && punishmentW != -1 && wMaxRTNN != -1) {
 			break;
 		}
 	}
 
-	if (rewardP == -1 || rewardD == -1 || rewardW == -1 || punishmentP == -1 || punishmentD == -1 || punishmentW == -1) {
+	if (rewardP == -1 || rewardD == -1 || rewardW == -1 || punishmentP == -1 || punishmentD == -1 || punishmentW == -1 || wMaxRTNN == -1) {
 		throw std::runtime_error("STDP configuration failed, one of four R-TNN parameters (RewardPotentiationDepression, RewardWindow, PunishmentPotentiationDepression, PunishmentWindow) was not set");
 	}
 }

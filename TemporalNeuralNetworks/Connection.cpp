@@ -67,14 +67,17 @@ void Connection::updateWeightCTNN(STDPConfigurator& config, int operation)
 {
 	if (operation == 0) { // Capture
 		double update = weight + config.getCapture();
+		update = std::min(std::max(0.0, update), config.getWMaxCTNN());
 		setWeight(update);
 	}
 	else if (operation == 1) { // Backoff
 		double update = weight - config.getBackoff();
+		update = std::min(std::max(0.0, update), config.getWMaxCTNN());
 		setWeight(update);
 	}
 	else if (operation == 2) { // Search
 		double update = weight + config.getSearch();
+		update = std::min(std::max(0.0, update), config.getWMaxCTNN());
 		setWeight(update);
 	}
 	else if (operation == 3) { // No-op
@@ -92,24 +95,28 @@ void Connection::updateWeightRTNN(STDPConfigurator& config, int operation, int d
 		double count = std::min(decayCounter, config.getRewardW());
 		double rewardP = config.getRewardP() - (count * config.getRewardP() / config.getRewardW());
 		double update = weight + rewardP;
+		update = std::min(std::max(0.0, update), config.getWMaxRTNN());
 		setWeight(update);
 	}
 	else if (operation == 1) { // Reward Depression
 		double count = std::min(decayCounter, config.getRewardW());
 		double rewardD = config.getRewardD() - (count * config.getRewardD() / config.getRewardW());
 		double update = weight - rewardD;
+		update = std::min(std::max(0.0, update), config.getWMaxRTNN());
 		setWeight(update);
 	}
 	else if (operation == 2) { // Punishment Potentiation
 		double count = std::min(decayCounter, config.getPunishmentW());
 		double punishmentP = config.getPunishmentP() - (count * config.getPunishmentP() / config.getPunishmentW());
 		double update = weight + punishmentP;
+		update = std::min(std::max(0.0, update), config.getWMaxRTNN());
 		setWeight(update);
 	}
 	else if (operation == 3) { // Punishment Depression
 		double count = std::min(decayCounter, config.getPunishmentW());
 		double punishmentD = config.getPunishmentD() - (count * config.getPunishmentD() / config.getPunishmentW());
 		double update = weight - punishmentD;
+		update = std::min(std::max(0.0, update), config.getWMaxRTNN());
 		setWeight(update);
 	}
 }

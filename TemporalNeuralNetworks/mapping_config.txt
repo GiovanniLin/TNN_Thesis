@@ -5,11 +5,11 @@ FullyConnected: Yes
 Input Map:
 Inputs: 4
 Layer 0 Neurons: 2
-DefaultWeight: 3
+DefaultWeight: 5
 End
 
 Layer Map 0:
 Layer 0 Neurons: 2
 Layer 1 Neurons: 2
-DefaultWeight: 2
+DefaultWeight: 5
 End

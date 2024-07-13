@@ -13,6 +13,8 @@ public:
 	void setBackoff(double backoff);
 	double getSearch();
 	void setSearch(double search);
+	double getWMaxCTNN();
+	void setWMaxCTNN(double wMaxCTNN);
 	double getRewardP();
 	void setRewardP(double rewardP);
 	double getRewardD();
@@ -25,6 +27,8 @@ public:
 	void setPunishmentD(double punishmentD);
 	int getPunishmentW();
 	void setPunishmentW(int punishmentW);
+	double getWMaxRTNN();
+	void setWMaxRTNN(double wMaxRTNN);
 	void configHandler(std::vector<std::string> v);
 	void configHandlerCTNN();
 	void configHandlerRTNN();
@@ -32,12 +36,14 @@ private:
 	double capture = -1;
 	double backoff = -1;
 	double search = -1;
+	double wMaxCTNN = -1;
 	double rewardP = -1; // P = Potentiation
 	double rewardD = -1; // D = Depression
 	int rewardW = -1; // W = Window
 	double punishmentP = -1; // P = Potentiation
 	double punishmentD = -1; // D = Depression
 	int punishmentW = -1; // W = Window
+	double wMaxRTNN = -1;
 	FileReader stdpConfig_;
 };
 

@@ -4,6 +4,7 @@ C-TNN:
 Capture: 0.0625
 Backoff: 0.0625
 Search: 0
+Wmax: 8
 
 R-TNN:
 RewardPotentiation: 1.5
@@ -12,3 +13,4 @@ RewardWindow: 2
 PunishmentPotentiation: 1.5
 PunishmentDepression: 1.5
 PunishmentWindow: 16
+Wmax: 8
