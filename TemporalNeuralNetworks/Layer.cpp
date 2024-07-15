@@ -151,7 +151,6 @@ void Layer::updateWeights(STDPConfigurator& config, int reward)
 			if (operation == -1) {
 				throw std::runtime_error("Cannot update weights, invalid network state.");
 			}
-
 			neurons[i].updateWeight(j, typeTNN, config, decayCounters[j][i], operation);
 		}
 	}

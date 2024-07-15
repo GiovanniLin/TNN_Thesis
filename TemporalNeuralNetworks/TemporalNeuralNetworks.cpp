@@ -36,7 +36,24 @@ int main()
             std::cout << INDENT << "Layer " << i << " Type: Unknown, Please check validity of parameter 'Type: #' \n";
         }
     }
-    std::cout << INDENT << "IF Type: " << networkConfig.getIFType() << "\n\n";
+    std::cout << INDENT << "IF Type: " << networkConfig.getIFType() << "\n";
+    std::cout << INDENT << "Environment Variables: " << networkConfig.getIntervals().size() << "\n";
+    std::cout << INDENT << "m-Hot Code: " << networkConfig.getMHotCode() << "\n";
+    std::cout << INDENT << "Encoding Intervals: \n";
+    for (int i = 0; i < networkConfig.getIntervals().size(); ++i) {
+        std::cout << INDENT << INDENT << "Environment Variable " << i << ": [";
+        for (int j = 0; j < networkConfig.getIntervals()[i].size(); ++j) {
+            if (j + 1 == networkConfig.getIntervals()[i].size()) {
+                std::cout << networkConfig.getIntervals()[i][j];
+            }
+            else {
+                std::cout << networkConfig.getIntervals()[i][j] << ", ";
+            }
+        }
+        std::cout << "]\n";
+    }
+    std::cout << INDENT << "\n";
+
 
     std::cout << "Reading STDP Configuration \n\n";
     STDPConfigurator stdpConfig("stdp_config.txt");
@@ -113,15 +130,24 @@ int main()
 
     // System (not the neuron) inputs
     int numInputs = networkConfig.getNumInputs();
-    bool* inputs = new bool[numInputs];
+    bool* inputs{ new bool[numInputs] {} };
 
     for (int i = 0; i < numInputs; ++i) {
         inputs[i] = false;
     }
 
     std::cout << "Created Inputs \n";
+    double angle = 10.5;
+    std::vector<int> encoding = networkConfig.getEncoding(0, angle);
+    std::cout << "Encoding test: \n";
+    std::cout << INDENT << "Angle: " << angle << " \n";
+    std::cout << INDENT << "Encodings: " << " \n";
+    for (int i = 0; i < encoding.size(); ++i) {
+        std::cout << INDENT << INDENT << "Spike on Input " << encoding[i] << " \n";
+    }
+    std::cout << "\n";
     
-    int output = run(15, layers, inputs, inputMap, layerMap, spikes);
+    int output = run(15, layers, inputs, numInputs, inputMap, layerMap, spikes);
 
     if (output > 0) {
         std::cout << "Output spike generated at time " << output << "\n\n";
@@ -166,6 +192,7 @@ int run(
     int cycles, 
     std::vector<Layer>& layers, 
     bool inputs[], 
+    int numInputs,
     std::vector<std::tuple<int, int, int>> inputMap,
     std::vector<std::tuple<int, int, int>> layerMap,
     std::vector<std::tuple<int, int>> spikes)
@@ -174,14 +201,15 @@ int run(
     bool stopRunning = false;
 
     std::cout << "Connecting inputs \n";
-    connectInputs(inputs, layers[0], inputMap);
+    std::cout << "First layer size: " << layers[0].neurons.size() << "\n";
+    connectInputs(inputs, numInputs, layers[0], inputMap);
 
     std::cout << "Connecting layers \n";
     connectLayers(layers[0], layers[1], layerMap);
 
     for (int i = 0; i < layers.size(); ++i) {
         if (i == 0) {
-            layers[i].initializeVectors(int (sizeof(inputs)/sizeof(bool)), layers[i].neurons.size());
+            layers[i].initializeVectors(numInputs, layers[i].neurons.size());
         }
         else {
             layers[i].initializeVectors(layers[i-1].neurons.size(), layers[i].neurons.size());
@@ -203,12 +231,12 @@ int run(
     // Add white space before starting for loop
     std::cout << "\n";
     
-    resetSpikes(inputs); // Make sure everything is false
+    resetSpikes(inputs, numInputs); // Make sure everything is false
 
     std::cout << "Now running \n\n";
     for (int i = 0; i < cycles; i++) {
         fireSpikes(simSpikes, inputs, i);
-        for (int j = 0; j < (sizeof(inputs) / sizeof(bool)); ++j) {
+        for (int j = 0; j < numInputs; ++j) {
             if (inputs[j]) {
                 layers[0].setInputTime(j, i);
                 layers[0].resetCounters(j);
@@ -253,7 +281,7 @@ int run(
             break;
         }
 
-        resetSpikes(inputs); // Falling edge of each spike, for spike validity
+        resetSpikes(inputs, numInputs); // Falling edge of each spike, for spike validity
 
         for (int j = 0; j < layers.size(); j++) {
             layers[j].incrementCounters();
@@ -271,21 +299,27 @@ bool sortbysec(const std::tuple<int, int>& a, const std::tuple<int, int>& b)
     return (std::get<1>(a) < std::get<1>(b));
 }
 
-void connectInputs(bool inputs[], Layer& inputLayer, std::vector<std::tuple<int, int, int>> inputMap)
+void connectInputs(bool inputs[], int numInputs, Layer& inputLayer, std::vector<std::tuple<int, int, int>> inputMap)
 {
     for (auto mapping : inputMap) {
 
         int inputIndex = std::get<0>(mapping);
+        //std::cout << "Input index: " << inputIndex << "\n";
 
         std::tuple<int, int> neuronIndices = getNeuronInputIndex(inputLayer, mapping);
 
         int neuronIndex = std::get<0>(neuronIndices);
 
+        //std::cout << "Neuron index: " << neuronIndex << "\n";
+
         int neuronInputIndex = std::get<1>(neuronIndices);
+
+        //std::cout << "Neuron synapse index: " << neuronInputIndex << "\n";
 
         int weight = std::get<2>(mapping);
         bool* ptr = &(inputs[inputIndex]);
 
+        //std::cout << "Setting input \n";
         inputLayer.neurons[neuronIndex].overwriteInput(neuronInputIndex, weight, ptr);
     }
 }
@@ -347,9 +381,9 @@ void fireSpikes(std::vector<std::vector<int>> spikes, bool inputs[], int time)
     }
 }
 
-void resetSpikes(bool inputs[])
+void resetSpikes(bool inputs[], int numInputs)
 {
-    for (size_t i = 0; i < (sizeof(inputs)/sizeof(bool)); i++) {
+    for (size_t i = 0; i < numInputs; i++) {
         inputs[i] = false;
     }
 }

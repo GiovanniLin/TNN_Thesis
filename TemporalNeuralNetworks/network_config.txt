@@ -3,11 +3,37 @@ Network Config:
 IntegrateFireType: 0
 IntegrateFireThreshold: 5
 Layers: 2
-Inputs: 4
+Inputs: 18
 FullConfigure: No
+EnvironmentVariables: 1
+m-hotCode: 3
+
+StartIntervals
+
+Variable 0:
+Interval 0: -12
+Interval 1: -10.5
+Interval 2: -9
+Interval 3: -7.5
+Interval 4: -6
+Interval 5: -4.5
+Interval 6: -3
+Interval 7: -1.5
+Interval 8: 0
+Interval 9: 1.5
+Interval 10: 3
+Interval 11: 4.5
+Interval 12: 6
+Interval 13: 7.5
+Interval 14: 9
+Interval 15: 10.5
+Interval 16: 12
+End
+
+EndIntervals
 
 Layer 0:
-Neurons: 2
+Neurons: 16
 Threshold: 6
 Type: 0
 End

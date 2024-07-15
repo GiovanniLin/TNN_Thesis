@@ -13,13 +13,21 @@ NetworkConfigurator::NetworkConfigurator(std::string networkConfig) : networkCon
         if (!nextLine.empty()) {
             configHandler(nextLine);
         }
-        if (numInputs != -1 && numLayers != -1 && ifType != -1 && ifThreshold != -1 && fullConfigure != -1) {
+        if (numInputs != -1 && numLayers != -1 && ifType != -1 && ifThreshold != -1 && fullConfigure != -1 && !intervals.empty() && mHotCode != -1) {
             break;
         }
     }
 
-    if (numInputs == -1 || numLayers == -1 || ifType == -1 || ifThreshold == -1 || fullConfigure == -1) {
-        throw std::runtime_error("Network configuration failed, one of four arguments (IntegrateFireType, Layers, Inputs, FullConfigure) not specified");
+    if (numInputs == -1 || numLayers == -1 || ifType == -1 || ifThreshold == -1 || fullConfigure == -1 || intervals.empty() || mHotCode == -1) {
+        throw std::runtime_error("Network configuration failed, one of five arguments (IntegrateFireType, Layers, Inputs, FullConfigure, EnvironmentVariables) not specified");
+    }
+
+    createIntervals();
+
+    for (int i = 0; i < intervals.size(); ++i) {
+        if (intervals[i].empty()) {
+            throw std::runtime_error("Network configuration failed, one of the encoding intervals was not set");
+        }
     }
 }
 
@@ -64,6 +72,21 @@ void NetworkConfigurator::setIFThreshold(int ifThreshold)
 void NetworkConfigurator::setFullConfigure(int fullConfigure)
 {
     this->fullConfigure = fullConfigure;
+}
+
+std::vector<std::vector<double>> NetworkConfigurator::getIntervals()
+{
+    return intervals;
+}
+
+int NetworkConfigurator::getMHotCode()
+{
+    return mHotCode;
+}
+
+void NetworkConfigurator::setMHotCode(int mHotCode)
+{
+    this->mHotCode = mHotCode;
 }
 
 std::vector<Layer> NetworkConfigurator::createLayers()
@@ -111,6 +134,16 @@ void NetworkConfigurator::configHandler(std::vector<std::string> v)
         else if (v[1] == "No" || v[1] == "no") {
             setFullConfigure(0);
         }
+    }
+    else if (v[0] == "EnvironmentVariables:") {
+        int ev = std::stoi(v[1]);
+        for (int i = 0; i < ev; ++i) {
+            std::vector<double> toAdd;
+            intervals.push_back(toAdd);
+        }
+    }
+    else if (v[0] == "m-hotCode:") {
+        setMHotCode(std::stoi(v[1]));
     }
     else {
         return; // do nothing
@@ -241,6 +274,111 @@ Layer NetworkConfigurator::layerHandler(std::vector<std::string> v)
     neuronCounter = 0;
     numNeuronsPrevLayer = res.neurons.size();
     return res;
+}
+
+void NetworkConfigurator::createIntervals()
+{
+    bool keepReading = false; 
+    while (networkConfig_.isNextLine() && !keepReading) {
+        std::vector<std::string> nL = networkConfig_.readNextLineSplit(" ");
+        if (!nL.empty()) {
+            if (nL[0] == "StartIntervals") {
+                keepReading = true;
+            }
+            else {
+                throw std::runtime_error("Network configuration failed, couldn't read encoding intervals, file out of order, check if intervals section starts with 'StartIntervals'");
+            }
+        }
+    }
+
+    int variableCounter = 0;
+
+    while (networkConfig_.isNextLine() && keepReading) {
+        int intervalCounter = 0;
+        std::vector<std::string> nL = networkConfig_.readNextLineSplit(" ");
+        if (!nL.empty()) {
+            if (nL[0] == "Variable") {
+                if (variableCounter >= intervals.size()) {
+                    throw std::runtime_error("Network configuration failed, too many environment variables specified, check if the correct number is set at 'EnvironmentVariables: #'");
+                }
+                if (std::stoi(nL[1]) == variableCounter) {
+                    while (networkConfig_.isNextLine()) {
+                        std::vector<std::string> v = networkConfig_.readNextLineSplit(" ");
+                        if (!v.empty()) {
+                            if (v[0] == "End") {
+                                break;
+                            }
+                            else if (v[0] == "Interval") {
+                                if (std::stoi(v[1]) == intervalCounter) {
+                                    if (v[2] == "-inf") {
+                                        intervals[variableCounter].push_back(std::numeric_limits<double>::lowest());
+                                    }
+                                    else if (v[2] == "inf") {
+                                        intervals[variableCounter].push_back(std::numeric_limits<double>::max());
+                                    }
+                                    else {
+                                        intervals[variableCounter].push_back(std::stod(v[2]));
+                                    }
+                                    intervalCounter += 1;
+                                }
+                                else {
+                                    throw std::runtime_error("Network configuration failed, couldn't read encoding intervals, numbers after 'Interval' out of order");
+                                }
+                            }
+                            else {
+                                throw std::runtime_error("Network configuration failed, couldn't read encoding intervals, file out of order, valid arguments are 'Interval #:' or 'End'");
+                            }
+                        }
+
+                    }
+                    variableCounter += 1;
+                }
+                else {
+                    throw std::runtime_error("Network configuration failed, couldn't read encoding intervals, numbers after 'Variable' out of order");
+                }
+            }
+            else if (nL[0] == "EndIntervals") {
+                keepReading = false;
+            }
+            else {
+                throw std::runtime_error("Network configuration failed, couldn't read encoding intervals, file out of order, valid arguments are 'Variable #:' or 'EndIntervals'");
+            }
+        }
+    }
+}
+
+std::vector<int> NetworkConfigurator::getEncoding(int ev, double value)
+{
+    if (ev >= intervals.size()) {
+        throw std::runtime_error("Get Encoding failed, Environment Variable out of bounds");
+    }
+
+    int res = 0;
+    for (int i = 0; i < ev; ++i) {
+        res += (intervals[i].size() - 1);
+    }
+
+    for (int i = 0; i < intervals[ev].size() - 1; ++i) {
+        if (i == intervals[ev].size() - 2) {
+            if (intervals[ev][i] <= value && value <= intervals[ev][i + 1]) {
+                res += i;
+                break;
+            }
+        }
+        else {
+            if (intervals[ev][i] <= value && value < intervals[ev][i + 1]) {
+                res += i;
+                break;
+            }
+        }
+    }
+
+    std::vector<int> resV;
+    for (int i = 0; i < mHotCode; ++i) {
+        resV.push_back(res + i);
+    }
+
+    return resV;
 }
 
 NetworkConfigurator::~NetworkConfigurator()

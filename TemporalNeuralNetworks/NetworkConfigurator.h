@@ -4,6 +4,7 @@
 #include <vector>
 #include "Neuron.h"
 #include "Layer.h"
+#include <limits>
 
 class NetworkConfigurator
 {
@@ -18,9 +19,14 @@ public:
 	int getIFThreshold();
 	void setIFThreshold(int ifThreshold);
 	void setFullConfigure(int fullConfigure);
+	std::vector<std::vector<double>> getIntervals();
+	int getMHotCode();
+	void setMHotCode(int mHotCode);
 	std::vector<Layer> createLayers();
 	void configHandler(std::vector<std::string> v);
 	Layer layerHandler(std::vector<std::string> v);
+	void createIntervals();
+	std::vector<int> getEncoding(int ev, double value);
 	~NetworkConfigurator();
 private:
 	int numInputs = -1;
@@ -31,5 +37,7 @@ private:
 	int neuronCounter = 0;
 	int numNeuronsPrevLayer = -1;
 	FileReader networkConfig_;
+	std::vector<std::vector<double>> intervals;
+	int mHotCode = -1;
 };
 

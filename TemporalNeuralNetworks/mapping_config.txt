@@ -3,13 +3,13 @@ Mapping Config:
 FullyConnected: Yes
 
 Input Map:
-Inputs: 4
-Layer 0 Neurons: 2
+Inputs: 18
+Layer 0 Neurons: 16
 DefaultWeight: 5
 End
 
 Layer Map 0:
-Layer 0 Neurons: 2
+Layer 0 Neurons: 16
 Layer 1 Neurons: 2
 DefaultWeight: 5
 End
