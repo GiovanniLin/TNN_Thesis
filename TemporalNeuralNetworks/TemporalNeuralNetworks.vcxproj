@@ -140,28 +140,28 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="Connection.cpp" />
-    <ClCompile Include="FileReader.cpp" />
-    <ClCompile Include="IntegrateFire.cpp" />
-    <ClCompile Include="Layer.cpp" />
-    <ClCompile Include="MappingConfigurator.cpp" />
-    <ClCompile Include="NetworkConfigurator.cpp" />
-    <ClCompile Include="Neuron.cpp" />
-    <ClCompile Include="SpikeConfigurator.cpp" />
-    <ClCompile Include="STDPConfigurator.cpp" />
-    <ClCompile Include="TemporalNeuralNetworks.cpp" />
+    <ClCompile Include="Network\Connection.cpp" />
+    <ClCompile Include="Network\FileReader.cpp" />
+    <ClCompile Include="Network\IntegrateFire.cpp" />
+    <ClCompile Include="Network\Layer.cpp" />
+    <ClCompile Include="Network\MappingConfigurator.cpp" />
+    <ClCompile Include="Network\NetworkConfigurator.cpp" />
+    <ClCompile Include="Network\Neuron.cpp" />
+    <ClCompile Include="Network\SpikeConfigurator.cpp" />
+    <ClCompile Include="Network\STDPConfigurator.cpp" />
+    <ClCompile Include="Network\TemporalNeuralNetworks.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Connection.h" />
-    <ClInclude Include="FileReader.h" />
-    <ClInclude Include="IntegrateFire.h" />
-    <ClInclude Include="Layer.h" />
-    <ClInclude Include="MappingConfigurator.h" />
-    <ClInclude Include="NetworkConfigurator.h" />
-    <ClInclude Include="Neuron.h" />
-    <ClInclude Include="SpikeConfigurator.h" />
-    <ClInclude Include="STDPConfigurator.h" />
-    <ClInclude Include="TemporalNeuralNetworks.h" />
+    <ClInclude Include="Network\Connection.h" />
+    <ClInclude Include="Network\FileReader.h" />
+    <ClInclude Include="Network\IntegrateFire.h" />
+    <ClInclude Include="Network\Layer.h" />
+    <ClInclude Include="Network\MappingConfigurator.h" />
+    <ClInclude Include="Network\NetworkConfigurator.h" />
+    <ClInclude Include="Network\Neuron.h" />
+    <ClInclude Include="Network\SpikeConfigurator.h" />
+    <ClInclude Include="Network\STDPConfigurator.h" />
+    <ClInclude Include="Network\TemporalNeuralNetworks.h" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="mapping_config.txt" />

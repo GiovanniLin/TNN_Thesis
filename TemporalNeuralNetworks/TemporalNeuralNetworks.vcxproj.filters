@@ -15,73 +15,73 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="TemporalNeuralNetworks.cpp">
+    <ClCompile Include="Network\Connection.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Neuron.cpp">
+    <ClCompile Include="Network\FileReader.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Connection.cpp">
+    <ClCompile Include="Network\IntegrateFire.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="IntegrateFire.cpp">
+    <ClCompile Include="Network\Layer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="FileReader.cpp">
+    <ClCompile Include="Network\MappingConfigurator.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="NetworkConfigurator.cpp">
+    <ClCompile Include="Network\NetworkConfigurator.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="MappingConfigurator.cpp">
+    <ClCompile Include="Network\Neuron.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="SpikeConfigurator.cpp">
+    <ClCompile Include="Network\SpikeConfigurator.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Layer.cpp">
+    <ClCompile Include="Network\STDPConfigurator.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="STDPConfigurator.cpp">
+    <ClCompile Include="Network\TemporalNeuralNetworks.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="TemporalNeuralNetworks.h">
+    <ClInclude Include="Network\Connection.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Neuron.h">
+    <ClInclude Include="Network\FileReader.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Connection.h">
+    <ClInclude Include="Network\IntegrateFire.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="IntegrateFire.h">
+    <ClInclude Include="Network\Layer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="FileReader.h">
+    <ClInclude Include="Network\MappingConfigurator.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="NetworkConfigurator.h">
+    <ClInclude Include="Network\NetworkConfigurator.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="MappingConfigurator.h">
+    <ClInclude Include="Network\Neuron.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="SpikeConfigurator.h">
+    <ClInclude Include="Network\SpikeConfigurator.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Layer.h">
+    <ClInclude Include="Network\STDPConfigurator.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="STDPConfigurator.h">
+    <ClInclude Include="Network\TemporalNeuralNetworks.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <Text Include="network_config.txt" />
     <Text Include="mapping_config.txt" />
     <Text Include="spike_config.txt" />
+    <Text Include="network_config.txt" />
     <Text Include="stdp_config.txt" />
   </ItemGroup>
 </Project>
