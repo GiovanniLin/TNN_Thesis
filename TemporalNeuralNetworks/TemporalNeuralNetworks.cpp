@@ -85,11 +85,11 @@ int main()
         return 1;
     }
 
-    std::cout << "Input Mapping: \n";
-    for (size_t i = 0; i < inputMap.size(); ++i) {
-        std::cout << INDENT << "Input: " << std::get<0>(inputMap[i]) << ", Network: " << std::get<1>(inputMap[i]) << ", Weight: " << std::get<2>(inputMap[i]) << "\n";
-    }
-    std::cout << "\n";
+    //std::cout << "Input Mapping: \n";
+    //for (size_t i = 0; i < inputMap.size(); ++i) {
+    //    std::cout << INDENT << "Input: " << std::get<0>(inputMap[i]) << ", Network: " << std::get<1>(inputMap[i]) << ", Weight: " << std::get<2>(inputMap[i]) << "\n";
+    //}
+    //std::cout << "\n";
 
     std::vector<std::tuple<int, int, int>> layerMap;
 
@@ -102,11 +102,11 @@ int main()
         return 1;
     }
 
-    std::cout << "Layer Mapping: \n";
-    for (size_t i = 0; i < layerMap.size(); ++i) {
-        std::cout << INDENT << "Layer 0: " << std::get<0>(layerMap[i]) << ", Layer 1: " << std::get<1>(layerMap[i]) << ", Weight: " << std::get<2>(layerMap[i]) << "\n";
-    }
-    std::cout << "\n";
+    //std::cout << "Layer Mapping: \n";
+    //for (size_t i = 0; i < layerMap.size(); ++i) {
+    //    std::cout << INDENT << "Layer 0: " << std::get<0>(layerMap[i]) << ", Layer 1: " << std::get<1>(layerMap[i]) << ", Weight: " << std::get<2>(layerMap[i]) << "\n";
+    //}
+    //std::cout << "\n";
 
     std::cout << "Reading Spike Configuration \n\n";
     SpikeConfigurator spikeConfig("spike_config.txt");
@@ -201,7 +201,7 @@ int run(
     bool stopRunning = false;
 
     std::cout << "Connecting inputs \n";
-    std::cout << "First layer size: " << layers[0].neurons.size() << "\n";
+    //std::cout << "First layer size: " << layers[0].neurons.size() << "\n";
     connectInputs(inputs, numInputs, layers[0], inputMap);
 
     std::cout << "Connecting layers \n";

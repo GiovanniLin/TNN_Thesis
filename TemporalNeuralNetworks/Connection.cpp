@@ -50,7 +50,7 @@ double Connection::getWeight()
 
 int Connection::getWeightRounded()
 {
-	return int (weight + 0.5);
+	return (int) std::ceil(weight);
 }
 
 void Connection::setWeight(double weight)
