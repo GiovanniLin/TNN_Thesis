@@ -151,9 +151,11 @@
     <ClCompile Include="Network\SpikeConfigurator.cpp" />
     <ClCompile Include="Network\STDPConfigurator.cpp" />
     <ClCompile Include="Network\TemporalNeuralNetworks.cpp" />
+    <ClCompile Include="Environment\State.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Environment\Environment.h" />
+    <ClInclude Include="Environment\math.h" />
     <ClInclude Include="Network\Connection.h" />
     <ClInclude Include="Network\FileReader.h" />
     <ClInclude Include="Network\IntegrateFire.h" />
@@ -164,6 +166,7 @@
     <ClInclude Include="Network\SpikeConfigurator.h" />
     <ClInclude Include="Network\STDPConfigurator.h" />
     <ClInclude Include="Network\TemporalNeuralNetworks.h" />
+    <ClInclude Include="Environment\State.h" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="mapping_config.txt" />
