@@ -13,6 +13,7 @@
 #include "SpikeConfigurator.h"
 #include "Layer.h"
 #include "STDPConfigurator.h"
+#include "../Environment/Environment.h"
 
 int run(
 	int cycles, 

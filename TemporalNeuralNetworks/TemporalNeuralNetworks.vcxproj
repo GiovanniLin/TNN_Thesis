@@ -140,6 +140,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Environment\Environment.cpp" />
     <ClCompile Include="Network\Connection.cpp" />
     <ClCompile Include="Network\FileReader.cpp" />
     <ClCompile Include="Network\IntegrateFire.cpp" />
@@ -152,6 +153,7 @@
     <ClCompile Include="Network\TemporalNeuralNetworks.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Environment\Environment.h" />
     <ClInclude Include="Network\Connection.h" />
     <ClInclude Include="Network\FileReader.h" />
     <ClInclude Include="Network\IntegrateFire.h" />

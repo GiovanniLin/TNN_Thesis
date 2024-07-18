@@ -8,6 +8,8 @@ int reward = 1;
 
 int main()
 {
+    Environment::testPrint();
+
     std::cout << "Reading Network Configuration \n";
     NetworkConfigurator networkConfig("network_config.txt");
 
