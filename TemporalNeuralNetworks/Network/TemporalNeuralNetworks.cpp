@@ -4,11 +4,12 @@
 #include "TemporalNeuralNetworks.h"
 
 const std::string INDENT = "    ";
-int reward = 1;
+int reward = 0;
 
 int main()
 {
-    Environment::testPrint();
+    Environment env;
+    env.testPrint();
 
     std::cout << "Reading Network Configuration \n";
     NetworkConfigurator networkConfig("network_config.txt");
@@ -110,25 +111,25 @@ int main()
     //}
     //std::cout << "\n";
 
-    std::cout << "Reading Spike Configuration \n\n";
-    SpikeConfigurator spikeConfig("spike_config.txt");
+    //std::cout << "Reading Spike Configuration \n\n";
+    //SpikeConfigurator spikeConfig("spike_config.txt");
 
-    std::vector<std::tuple<int, int>> spikes;
+    //std::vector<std::tuple<int, int>> spikes;
 
-    std::cout << "Creating spikes \n\n";
-    try {
-        spikes = spikeConfig.createSpikes();
-    }
-    catch (std::runtime_error& e) {
-        std::cout << e.what();
-        return 1;
-    }
+    //std::cout << "Creating spikes \n\n";
+    //try {
+    //    spikes = spikeConfig.createSpikes();
+    //}
+    //catch (std::runtime_error& e) {
+    //    std::cout << e.what();
+    //    return 1;
+    //}
 
-    std::cout << "Spikes: \n";
-    for (size_t i = 0; i < spikes.size(); ++i) {
-        std::cout << INDENT << "Input: " << std::get<0>(spikes[i]) << ", Time: " << std::get<1>(spikes[i]) << "\n";
-    }
-    std::cout << "\n";
+    //std::cout << "Spikes: \n";
+    //for (size_t i = 0; i < spikes.size(); ++i) {
+    //    std::cout << INDENT << "Input: " << std::get<0>(spikes[i]) << ", Time: " << std::get<1>(spikes[i]) << "\n";
+    //}
+    //std::cout << "\n";
 
     // System (not the neuron) inputs
     int numInputs = networkConfig.getNumInputs();
@@ -138,31 +139,86 @@ int main()
         inputs[i] = false;
     }
 
-    std::cout << "Created Inputs \n";
-    double angle = 10.5;
-    std::vector<int> encoding = networkConfig.getEncoding(0, angle);
-    std::cout << "Encoding test: \n";
-    std::cout << INDENT << "Angle: " << angle << " \n";
-    std::cout << INDENT << "Encodings: " << " \n";
-    for (int i = 0; i < encoding.size(); ++i) {
-        std::cout << INDENT << INDENT << "Spike on Input " << encoding[i] << " \n";
-    }
-    std::cout << "\n";
+    std::cout << "Created Inputs \n\n";
+
+    //double angle = 10.5;
+    //std::vector<int> encoding = networkConfig.getEncoding(0, angle);
+    //std::cout << "Encoding test: \n";
+    //std::cout << INDENT << "Angle: " << angle << " \n";
+    //std::cout << INDENT << "Encodings: " << " \n";
+    //for (int i = 0; i < encoding.size(); ++i) {
+    //    std::cout << INDENT << INDENT << "Spike on Input " << encoding[i] << " \n";
+    //}
+    //std::cout << "\n";
+
+    //env.testMath();
     
-    int output = run(15, layers, inputs, numInputs, inputMap, layerMap, spikes);
+    bool keepRunning = true;
 
-    if (output > 0) {
-        std::cout << "Output spike generated at time " << output << "\n\n";
-    }
-    else {
-        std::cout << "No output spike \n\n";
-    }
+    int cycleCounter = 0;
 
-    for (int i = 0; i < layers.size(); ++i) {
-        for (int j = 0; j < layers[i].neurons.size(); ++j) {
-            std::cout << "Final body potential of Layer " << i << " Neuron " << j << ": " << layers[i].neurons[j].currentBodyPotential() << " \n";
+    std::cout << "Connecting inputs \n";
+    connectInputs(inputs, numInputs, layers[0], inputMap);
+
+    std::cout << "Connecting layers \n\n";
+    connectLayers(layers[0], layers[1], layerMap);
+
+    while (keepRunning && cycleCounter < env.simCycles) {
+
+        for (int i = 0; i < layers.size(); ++i) {
+            if (i == 0) {
+                layers[i].initializeVectors(numInputs, layers[i].neurons.size());
+            }
+            else {
+                layers[i].initializeVectors(layers[i - 1].neurons.size(), layers[i].neurons.size());
+            }
         }
-        layers[i].updateWeights(stdpConfig, reward);
+
+        double inputAngle = env.getState().getAngle();
+        std::vector<int> encodingAngle = networkConfig.getEncoding(0, inputAngle);
+
+        env.printState();
+
+        std::cout << "Spikes: " << " \n";
+        for (int i = 0; i < encodingAngle.size(); ++i) {
+            std::cout << INDENT << "Spike on Input " << encodingAngle[i] << " \n";
+        }
+        std::vector<std::tuple<int, int>> spikes = createSpikesFromEncoding(encodingAngle);
+        std::cout << "\n";
+
+        int output = run(30, layers, inputs, inputMap, layerMap, numInputs, spikes);
+
+        if (output >= 0) {
+            std::cout << "Spike from output: " << output << "\n\n";
+        }
+        else {
+            std::cout << "No output spike, randomly generating a value. \n";
+            output = std::rand() % layers[layers.size() - 1].neurons.size();
+            std::cout << "Randomly generated output: " << output << "\n\n";
+        }
+
+        reward = env.determineReward(cycleCounter);
+
+        for (int i = 0; i < layers.size(); ++i) {
+            //for (int j = 0; j < layers[i].neurons.size(); ++j) {
+            //    std::cout << "Final body potential of Layer " << i << " Neuron " << j << ": " << layers[i].neurons[j].currentBodyPotential() << " \n";
+            //}
+            layers[i].updateWeights(stdpConfig, reward);
+        }
+
+        bool action = env.decode(output);
+        bool outOfBounds = env.stepState(action);
+
+        if (outOfBounds) {
+            std::cout << "Sim out of bounds \n";
+            env.printState();
+            keepRunning = false;
+        }
+        cycleCounter += 1;
+        resetSpikes(inputs, numInputs);
+        for (int i = 0; i < layers.size(); ++i) {
+            layers[i].resetNeurons();
+        }
     }
 
     for (int i = 0; i < layers.size(); ++i) {
@@ -193,30 +249,14 @@ int main()
 int run(
     int cycles, 
     std::vector<Layer>& layers, 
-    bool inputs[], 
-    int numInputs,
+    bool inputs[],
     std::vector<std::tuple<int, int, int>> inputMap,
     std::vector<std::tuple<int, int, int>> layerMap,
+    int numInputs,
     std::vector<std::tuple<int, int>> spikes)
 {
-    int outputTime = 0;
+    int res = -1;
     bool stopRunning = false;
-
-    std::cout << "Connecting inputs \n";
-    //std::cout << "First layer size: " << layers[0].neurons.size() << "\n";
-    connectInputs(inputs, numInputs, layers[0], inputMap);
-
-    std::cout << "Connecting layers \n";
-    connectLayers(layers[0], layers[1], layerMap);
-
-    for (int i = 0; i < layers.size(); ++i) {
-        if (i == 0) {
-            layers[i].initializeVectors(numInputs, layers[i].neurons.size());
-        }
-        else {
-            layers[i].initializeVectors(layers[i-1].neurons.size(), layers[i].neurons.size());
-        }
-    }
 
     std::vector<std::reference_wrapper<bool>> finalOutput;
 
@@ -254,7 +294,7 @@ int run(
 
             if (!outputs.empty()) {
                 for (auto k : outputs) {
-                    std::cout << "Layer " << j << ", Neuron " << k << " generated output spike at time " << i << "\n";
+                    std::cout << "Layer " << j << ", Neuron " << k << " generated output spike at time " << i << "\n\n";
                     if (j + 1 < layers.size()) {
                         layers[j + 1].setInputTime(k, i);
                         layers[j + 1].resetCounters(k);
@@ -271,7 +311,7 @@ int run(
 
         for (int j = 0; j < finalOutput.size(); ++j) {
             if (finalOutput[j]) {
-                outputTime = i;
+                res = j;
                 std::cout << "Output from Layer " << (layers.size() - 1) << " Neuron " << j << " \n";
                 std::cout << "\n";
                 stopRunning = true;
@@ -289,11 +329,8 @@ int run(
             layers[j].incrementCounters();
             layers[j].removeOutputSpikes(); // Falling edge of each spike, for spike validity
         }
-
-        // Add white space after 1 cycle
-        std::cout << "\n";
     }
-    return outputTime;
+    return res;
 }
 
 bool sortbysec(const std::tuple<int, int>& a, const std::tuple<int, int>& b)
@@ -390,3 +427,12 @@ void resetSpikes(bool inputs[], int numInputs)
     }
 }
 
+std::vector<std::tuple<int, int>> createSpikesFromEncoding(std::vector<int> encoding)
+{
+    std::vector<std::tuple<int, int>> res;
+    for (int i = 0; i < encoding.size(); ++i) {
+        res.push_back(std::make_tuple(encoding[i], 0));
+    }
+
+    return res;
+}

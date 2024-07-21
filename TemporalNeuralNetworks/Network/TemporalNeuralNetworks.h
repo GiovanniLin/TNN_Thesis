@@ -18,10 +18,10 @@
 int run(
 	int cycles, 
 	std::vector<Layer>& layers,
-	bool inputs[], 
+	bool inputs[],
+	std::vector<std::tuple<int, int, int>> inputMap,
+	std::vector<std::tuple<int, int, int>> layerMap,
 	int numInputs,
-	std::vector<std::tuple<int, int, int>> inputMap, 
-	std::vector<std::tuple<int, int, int>> layerMap, 
 	std::vector<std::tuple<int, int>> spikes);
 
 bool sortbysec(const std::tuple<int, int>& a, const std::tuple<int, int>& b);
@@ -37,3 +37,5 @@ std::vector<std::vector<int>> generateSpikes(std::vector<std::tuple<int, int>> s
 void fireSpikes(std::vector<std::vector<int>> spikes, bool inputs[], int time);
 
 void resetSpikes(bool inputs[], int numInputs);
+
+std::vector<std::tuple<int, int>> createSpikesFromEncoding(std::vector<int> encoding);

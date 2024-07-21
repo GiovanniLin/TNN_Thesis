@@ -75,3 +75,10 @@ void Neuron::updateWeight(int index, int typeTNN, STDPConfigurator& config, int 
 		throw std::runtime_error("Typing of Neuron has not been set in Layer");
 	}
 }
+
+void Neuron::resetNeuron()
+{
+	this->output = false;
+	ifType->resetPotential();
+	ifType->resetAllSpikeFlag();
+}

@@ -1,7 +1,6 @@
 #pragma once
 #include <cmath>
 #include <iostream>
-#include <numbers>
 #include "math.h"
 
 class State
@@ -26,11 +25,13 @@ public:
 	void setAngle(double theta);
 	double getAngleDot();
 	void setAngleDot(double thetaDot);
+	double getAnglePrev();
 	bool step(bool action);
 private:
 	double displacement = 0; // Displacement of cart
 	double displacementDot = 0; // Derivative of displacement, velocity of cart
 	double angle = 0; // Angle of pole
 	double angleDot = 0; // Derivative of pole angle, velocity of pole
+	double anglePrev = 0;
 };
 

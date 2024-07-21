@@ -139,6 +139,9 @@ void Layer::updateWeights(STDPConfigurator& config, int reward)
 				}
 			}
 			else if (typeTNN == 1) {
+				if (reward == 0) {
+					continue;
+				}
 				operation = identifyWeightUpdateRTNN(reward, j, i);
 				if (operation == -1) {
 					throw std::runtime_error("Cannot update weights, invalid R-TNN weight update input condition.");
@@ -243,4 +246,14 @@ int Layer::identifyWeightUpdateRTNN(int r, int x, int z)
 	else {
 		return -1;
 	}
+}
+
+void Layer::resetNeurons()
+{
+	for (int i = 0; i < neurons.size(); ++i) {
+		neurons[i].resetNeuron();
+	}
+	wta = false;
+	highestBodyPotential = -1;
+	highestBodyPotentialIndex = -1;
 }

@@ -25,5 +25,6 @@ public:
 	void checkForIF();
 	void removeOutputSpike();
 	void updateWeight(int index, int typeTNN, STDPConfigurator& config, int decayCounter, int operation);
+	void resetNeuron();
 };
 

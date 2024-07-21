@@ -43,6 +43,9 @@ public:
 		std::cout << "Wrong getSpikeFlag \n";
 		return false;
 	};
+	virtual void resetPotential() {
+		std::cout << "Wrong resetPotential \n";
+	}
 };
 
 class RampIntegrateFire : public IntegrateFire
@@ -64,6 +67,7 @@ public:
 	void setSpikeFlag(int index) override;
 	void resetAllSpikeFlag() override;
 	bool getSpikeFlag(int index) override;
+	void resetPotential() override;
 };
 
 class LeakyIntegrateFire : public IntegrateFire

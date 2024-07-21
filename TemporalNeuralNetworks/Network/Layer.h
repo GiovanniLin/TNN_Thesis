@@ -31,6 +31,7 @@ public:
 	void resetCounters(int index);
 	int identifyWeightUpdateCTNN(int x, int z);
 	int identifyWeightUpdateRTNN(int r, int x, int z);
+	void resetNeurons();
 private:
 	bool wta =  false;
 	int highestBodyPotential = -1;

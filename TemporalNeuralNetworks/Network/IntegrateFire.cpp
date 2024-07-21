@@ -77,3 +77,11 @@ bool RampIntegrateFire::getSpikeFlag(int index)
 {
 	return this->spikeFlag[index];
 }
+
+void RampIntegrateFire::resetPotential()
+{
+	for (int i = 0; i < rifCounter.size(); ++i) {
+		rifCounter[i] = 0;
+	}
+	resetAllSpikeFlag();
+}
