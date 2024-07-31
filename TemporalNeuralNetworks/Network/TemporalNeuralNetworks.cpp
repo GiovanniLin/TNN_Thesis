@@ -197,7 +197,20 @@ int main()
             std::cout << "Randomly generated output: " << output << "\n\n";
         }
 
+        bool action = env.decode(output);
+        bool outOfBounds = env.stepState(action);
+
         reward = env.determineReward(cycleCounter);
+
+        if (reward == -1) {
+            std::cout << "Negative reward \n";
+        }
+        else if (reward == 1) {
+            std::cout << "Positive reward \n";
+        }
+        else {
+            std::cout << "No reward \n";
+        }
 
         for (int i = 0; i < layers.size(); ++i) {
             //for (int j = 0; j < layers[i].neurons.size(); ++j) {
@@ -206,20 +219,29 @@ int main()
             layers[i].updateWeights(stdpConfig, reward);
         }
 
-        bool action = env.decode(output);
-        bool outOfBounds = env.stepState(action);
-
         if (outOfBounds) {
-            std::cout << "Sim out of bounds \n";
-            env.printState();
+            std::cout << "Sim out of bounds \n\n";
             keepRunning = false;
         }
+
         cycleCounter += 1;
         resetSpikes(inputs, numInputs);
         for (int i = 0; i < layers.size(); ++i) {
             layers[i].resetNeurons();
         }
     }
+
+    if (cycleCounter < env.simCycles) {
+        std::cout << "Sim ended due to sim out of bounds \n\n";
+    }
+    else {
+        std::cout << "Sim ended due to reaching cycle limit \n\n";
+    }
+
+    std::cout << "Final State of the Environment: \n";
+    env.printState();
+
+    std::cout << "Number of cycles simulated: " << cycleCounter << " \n\n";
 
     for (int i = 0; i < layers.size(); ++i) {
         //for (int j = 0; j < layers[i].getInputTime().size(); j++) {

@@ -22,6 +22,7 @@ public:
 	double getDisplacementDot();
 	void setDisplacementDot(double xDot);
 	double getAngle();
+	double getAngleRad();
 	void setAngle(double theta);
 	double getAngleDot();
 	void setAngleDot(double thetaDot);

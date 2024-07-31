@@ -362,12 +362,14 @@ std::vector<int> NetworkConfigurator::getEncoding(int ev, double value)
         if (i == intervals[ev].size() - 2) {
             if (intervals[ev][i] <= value && value <= intervals[ev][i + 1]) {
                 res += i;
+                std::cout << "Angle Interval: " << intervals[ev][i] << " - " << intervals[ev][i + 1] << " \n";
                 break;
             }
         }
         else {
             if (intervals[ev][i] <= value && value < intervals[ev][i + 1]) {
                 res += i;
+                std::cout << "Angle Interval: " << intervals[ev][i] << " - " << intervals[ev][i + 1] << " \n";
                 break;
             }
         }

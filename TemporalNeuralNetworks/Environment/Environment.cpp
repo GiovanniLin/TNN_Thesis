@@ -33,7 +33,7 @@ int Environment::determineReward(int cycleCounter)
 	if (cycleCounter % 50 == 0) {
 		return 1;
 	}
-	else if (std::abs(state.getAngle()) > state.angleThreshold) {
+	else if (std::abs(state.getAngleRad()) > state.angleThreshold) {
 		return -1;
 	}
 	else {
@@ -50,12 +50,14 @@ void Environment::testMath()
 {
 	double x = state.getDisplacement();
 	double xDot = state.getDisplacementDot();
-	double theta = state.getAngle();
+	double theta = state.getAngleRad();
 	double thetaDot = state.getAngleDot();
 	double force = state.forceMagnitude;
 
-	double costheta = std::cos(state.getAngle());
-	double sintheta = std::sin(state.getAngle());
+	//force = -force;
+
+	double costheta = std::cos(state.getAngleRad());
+	double sintheta = std::sin(state.getAngleRad());
 
 	double temp = (force + state.poleML * (state.getAngleDot() * state.getAngleDot()) * sintheta) / state.totalMass;
 	double thetaAcc = (state.gravity * sintheta - costheta * temp) / (state.length * (4.0 / 3.0 - state.massPole * (costheta * costheta) / state.totalMass));
@@ -66,12 +68,14 @@ void Environment::testMath()
 	theta = theta + state.tau * thetaDot;
 	thetaDot = thetaDot + state.tau * thetaAcc;
 
+	std::cout << "Pole Angle after 1 cycle: " << (theta / (2 * pi()) * 360) << "\n";
+	std::cout << "Pole Velocity after 1 cycle: " << std::fixed << std::setprecision(std::numeric_limits<double>::max_digits10) << thetaDot << "\n";
+	std::cout << "Pole acceleration in 1 cycle: " << thetaAcc << "\n";
 	std::cout << "Cart Displacement after 1 cycle: " << x << "\n";
 	std::cout << "Cart Velocity after 1 cycle: " << xDot << "\n";
 	std::cout << "Cart acceleration in 1 cycle: " << xAcc << "\n";
-	std::cout << "Pole Angle after 1 cycle: " << theta << "\n";
-	std::cout << "Pole Velocity after 1 cycle: " << thetaDot << "\n";
-	std::cout << "Pole acceleration in 1 cycle: " << thetaAcc << "\n";
+
+	//force = -force;
 
 	temp = (force + state.poleML * (state.getAngleDot() * state.getAngleDot()) * sintheta) / state.totalMass;
 	thetaAcc = (state.gravity * sintheta - costheta * temp) / (state.length * (4.0 / 3.0 - state.massPole * (costheta * costheta) / state.totalMass));
@@ -82,10 +86,29 @@ void Environment::testMath()
 	theta = theta + state.tau * thetaDot;
 	thetaDot = thetaDot + state.tau * thetaAcc;
 
+	std::cout << "Pole Angle after 2 cycles: " << (theta / (2 * pi()) * 360) << "\n";
+	std::cout << "Pole Velocity after 2 cycles: " << thetaDot << "\n";
+	std::cout << "Pole acceleration in 2 cycles: " << thetaAcc << "\n";
 	std::cout << "Cart Displacement after 2 cycles: " << x << "\n";
 	std::cout << "Cart Velocity after 2 cycles: " << xDot << "\n";
 	std::cout << "Cart acceleration in 2 cycles: " << xAcc << "\n";
-	std::cout << "Pole Angle after 2 cycles: " << theta << "\n";
-	std::cout << "Pole Velocity after 2 cycles: " << thetaDot << "\n";
-	std::cout << "Pole acceleration in 2 cycles: " << thetaAcc << "\n";
+
+	force = -force;
+
+	temp = (force + state.poleML * (state.getAngleDot() * state.getAngleDot()) * sintheta) / state.totalMass;
+	thetaAcc = (state.gravity * sintheta - costheta * temp) / (state.length * (4.0 / 3.0 - state.massPole * (costheta * costheta) / state.totalMass));
+	xAcc = temp - state.poleML * thetaAcc * costheta / state.totalMass;
+
+	x = x + state.tau * xDot;
+	xDot = xDot + state.tau * xAcc;
+	theta = theta + state.tau * thetaDot;
+	thetaDot = thetaDot + state.tau * thetaAcc;
+
+	std::cout << "Pole Angle after 3 cycles: " << (theta / (2 * pi()) * 360) << "\n";
+	std::cout << "Pole Velocity after 3 cycles: " << thetaDot << "\n";
+	std::cout << "Pole acceleration in 3 cycles: " << thetaAcc << "\n";
+	std::cout << "Cart Displacement after 3 cycles: " << x << "\n";
+	std::cout << "Cart Velocity after 3 cycles: " << xDot << "\n";
+	std::cout << "Cart acceleration in 3 cycles: " << xAcc << "\n";
+	std::cout << "\n";
 }

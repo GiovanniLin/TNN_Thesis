@@ -27,6 +27,11 @@ void State::setDisplacementDot(double xDot)
 
 double State::getAngle()
 {
+	return angle / (2 * pi()) * 360;
+}
+
+double State::getAngleRad()
+{
 	return angle;
 }
 
@@ -56,7 +61,7 @@ bool State::step(bool action)
 {
 	double x = getDisplacement();
 	double xDot = getDisplacementDot();
-	double theta = getAngle();
+	double theta = getAngleRad();
 	double thetaDot = getAngleDot();
 	
 	double force = forceMagnitude;
@@ -82,5 +87,13 @@ bool State::step(bool action)
 	setAngle(theta);
 	setAngleDot(thetaDot);
 
-	return (x < -displacementThreshold || x > displacementThreshold || theta < -angleThreshold || theta > angleThreshold);
+	bool res = (std::abs(x) > displacementThreshold || std::abs(theta) > angleThreshold);
+
+	if (res) {
+		std::cout << "Sim out of bounds \n";
+		std::cout << "Pole angle: " << theta << ", pole angle threshold: " << angleThreshold << " \n";
+		std::cout << "Cart displacement: " << x << ", cart displacement threshold: " << displacementThreshold << " \n";
+	}
+
+	return res;
 }
