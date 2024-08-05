@@ -208,6 +208,7 @@ Layer NetworkConfigurator::layerHandler(std::vector<std::string> v)
         int layerThreshold = -1;
         int currentLayer = -1;
         int layerType = -1;
+        int readWeights = -1;
         if (v[0] == "Layer") {
             if (std::stoi(v[1]) >= numLayers) {
                 throw std::runtime_error("Network configuration failed, layers not set or too many layers");
@@ -229,16 +230,22 @@ Layer NetworkConfigurator::layerHandler(std::vector<std::string> v)
                         else if (nextLine[0] == "Type:") {
                             layerType = std::stoi(nextLine[1]);
                         }
+                        else if (nextLine[0] == "ReadWeights:") {
+                            readWeights = std::stoi(nextLine[1]);
+                        }
                         else {
-                            throw std::runtime_error("Network configuration failed, invalid argument after 'Layer #:'. Correct arguments are 'Neurons: #', 'Threshold: #', 'Type: #' or 'End'");
+                            throw std::runtime_error("Network configuration failed, invalid argument after 'Layer #:'. Correct arguments are 'Neurons: #', 'Threshold: #', 'Type: #', 'ReadWeights: #' or 'End'");
                         }
                     }
                 }
 
-                if (numNeurons < 0 || layerThreshold < 0 || layerType < 0) {
-                    throw std::runtime_error("Network configuration failed, invalid value specified for 'Neurons: #', 'Threshold: #' or 'Type: #'");
+                if (numNeurons < 0 || layerThreshold < 0 || layerType < 0 || readWeights < 0 || readWeights > 1) {
+                    throw std::runtime_error("Network configuration failed, invalid value specified for 'Neurons: #', 'Threshold: #', 'Type: #' or 'ReadWeights: #'");
                 }
 
+                if (readWeights == 1) {
+                    res.setReadWeights(true);
+                }
                 res.setTypeTNN(layerType);
 
                 for (int i = 0; i < numNeurons; ++i) {
@@ -362,14 +369,14 @@ std::vector<int> NetworkConfigurator::getEncoding(int ev, double value)
         if (i == intervals[ev].size() - 2) {
             if (intervals[ev][i] <= value && value <= intervals[ev][i + 1]) {
                 res += i;
-                std::cout << "Angle Interval: " << intervals[ev][i] << " - " << intervals[ev][i + 1] << " \n";
+                //std::cout << "Angle Interval: " << intervals[ev][i] << " - " << intervals[ev][i + 1] << " \n";
                 break;
             }
         }
         else {
             if (intervals[ev][i] <= value && value < intervals[ev][i + 1]) {
                 res += i;
-                std::cout << "Angle Interval: " << intervals[ev][i] << " - " << intervals[ev][i + 1] << " \n";
+                //std::cout << "Angle Interval: " << intervals[ev][i] << " - " << intervals[ev][i + 1] << " \n";
                 break;
             }
         }

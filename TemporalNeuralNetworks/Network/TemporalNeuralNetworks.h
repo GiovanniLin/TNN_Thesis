@@ -14,6 +14,7 @@
 #include "Layer.h"
 #include "STDPConfigurator.h"
 #include "../Environment/Environment.h"
+#include "WeightConfigurator.h"
 
 int run(
 	int cycles, 

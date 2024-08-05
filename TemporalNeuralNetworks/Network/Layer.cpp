@@ -30,6 +30,16 @@ void Layer::setTypeTNN(int typeTNN)
 	this->typeTNN = typeTNN;
 }
 
+bool Layer::getReadWeights()
+{
+	return readWeights;
+}
+
+void Layer::setReadWeights(bool readWeights)
+{
+	this->readWeights = readWeights;
+}
+
 std::vector<int> Layer::getInputTime()
 {
 	return inputTime;
@@ -48,8 +58,10 @@ std::vector<std::vector<int>> Layer::getDecayCounters()
 void Layer::checkNeuronIFs()
 {
 	for (int i = 0; i < neurons.size(); ++i) {
+		//std::cout << "Neuron: " << i << ", ";
 		neurons[i].checkForIF();
 	}
+	//std::cout << "\n";
 }
 
 void Layer::checkNeuronSpikes(int time)
@@ -127,6 +139,16 @@ void Layer::removeOutputSpikes()
 	}
 }
 
+void Layer::setWeights(std::vector<std::vector<double>> weights) {
+	for (int i = 0; i < neurons.size(); ++i) {
+		for (int j = 0; j < neurons[i].inputs.size(); ++j) {
+			//std::cout << "Current weight of Neuron " << i << ", Input " << j << ", Weight: " << neurons[i].inputs[j]->getWeight() << "\n";
+			//std::cout << "Setting weight for Neuron " << i << ", Input " << j << ", Weight: " << weights[i][j] << "\n\n";
+			neurons[i].setWeight(j, weights[i][j]);
+		}
+	}
+}
+
 void Layer::updateWeights(STDPConfigurator& config, int reward)
 {
 	for (int i = 0; i < neurons.size(); ++i) {
@@ -161,6 +183,9 @@ void Layer::updateWeights(STDPConfigurator& config, int reward)
 
 void Layer::initializeVectors(int x, int y)
 {
+	decayCounters.clear();
+	inputTime.clear();
+	outputTime.clear();
 	for (int i = 0; i < x; ++i) {
 		std::vector<int> toAddA;
 		for (int j = 0; j < y; ++j) {

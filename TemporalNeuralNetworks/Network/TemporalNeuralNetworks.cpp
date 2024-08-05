@@ -38,6 +38,12 @@ int main()
         else {
             std::cout << INDENT << "Layer " << i << " Type: Unknown, Please check validity of parameter 'Type: #' \n";
         }
+        if (layers[i].getReadWeights()) {
+            std::cout << INDENT << "Layer " << i << " weights read from config \n";
+        }
+        else {
+            std::cout << INDENT << "Layer " << i << " weights are default \n";
+        }
     }
     std::cout << INDENT << "IF Type: " << networkConfig.getIFType() << "\n";
     std::cout << INDENT << "Environment Variables: " << networkConfig.getIntervals().size() << "\n";
@@ -57,6 +63,14 @@ int main()
     }
     std::cout << INDENT << "\n";
 
+    bool readWeights = false;
+
+    for (int i = 0; i < layers.size(); ++i) {
+        if (layers[i].getReadWeights()) {
+            readWeights = true;
+            break;
+        }
+    }
 
     std::cout << "Reading STDP Configuration \n\n";
     STDPConfigurator stdpConfig("stdp_config.txt");
@@ -152,10 +166,22 @@ int main()
     //std::cout << "\n";
 
     //env.testMath();
-    
-    bool keepRunning = true;
 
     int cycleCounter = 0;
+
+    int episodeCounter = 0;
+
+    int episodeLimit = 0;
+
+    bool trainingMode = env.trainingMode;
+
+    if (trainingMode) {
+        episodeLimit = env.trainingEpisodes;
+    }
+    else
+    {
+        episodeLimit = env.testEpisodes;
+    }
 
     std::cout << "Connecting inputs \n";
     connectInputs(inputs, numInputs, layers[0], inputMap);
@@ -163,7 +189,30 @@ int main()
     std::cout << "Connecting layers \n\n";
     connectLayers(layers[0], layers[1], layerMap);
 
-    while (keepRunning && cycleCounter < env.simCycles) {
+    if (readWeights) {
+        WeightConfigurator weightConfig("weight_config.txt");
+        weightConfig.readWeights(layers);
+        std::vector<std::vector<std::vector<double>>> weights = weightConfig.getWeights();
+        for (int i = 0; i < layers.size(); ++i) {
+            if (layers[i].getReadWeights()) {
+                //std::cout << "Setting Weights for Layer " << i << "\n\n";
+                layers[i].setWeights(weights[i]);
+            }
+        }
+        //for (int i = 0; i < weights.size(); ++i) {
+        //    if (weights[i].empty()) {
+        //        std::cout << "No weights read for Layer " << i << " \n";
+        //    }
+        //    for (int j = 0; j < weights[i].size(); ++j) {
+        //        for (int k = 0; k < weights[i][j].size(); ++k) {
+        //            std::cout << "Layer " << i << ", Neuron " << j << ", Synapse: " << k << ", Weight: " << weights[i][j][k] << "\n";
+        //        }
+        //    }
+        //}
+        //std::cout << "\n";
+    }
+
+    while (episodeCounter < episodeLimit) {
 
         for (int i = 0; i < layers.size(); ++i) {
             if (i == 0) {
@@ -177,71 +226,101 @@ int main()
         double inputAngle = env.getState().getAngle();
         std::vector<int> encodingAngle = networkConfig.getEncoding(0, inputAngle);
 
-        env.printState();
+        //env.printState();
 
-        std::cout << "Spikes: " << " \n";
-        for (int i = 0; i < encodingAngle.size(); ++i) {
-            std::cout << INDENT << "Spike on Input " << encodingAngle[i] << " \n";
-        }
+        //std::cout << "Spikes: " << " \n";
+        //for (int i = 0; i < encodingAngle.size(); ++i) {
+        //    std::cout << INDENT << "Spike on Input " << encodingAngle[i] << " \n";
+        //}
         std::vector<std::tuple<int, int>> spikes = createSpikesFromEncoding(encodingAngle);
-        std::cout << "\n";
+        //std::cout << "\n";
 
         int output = run(30, layers, inputs, inputMap, layerMap, numInputs, spikes);
 
-        if (output >= 0) {
-            std::cout << "Spike from output: " << output << "\n\n";
-        }
-        else {
-            std::cout << "No output spike, randomly generating a value. \n";
-            output = std::rand() % layers[layers.size() - 1].neurons.size();
-            std::cout << "Randomly generated output: " << output << "\n\n";
-        }
+        //if (output >= 0) {
+        //    std::cout << "Spike from output: " << output << "\n\n";
+        //}
+        //else {
+        //    std::cout << "No output spike, randomly generating a value. \n";
+        //    output = std::rand() % layers[layers.size() - 1].neurons.size();
+        //    std::cout << "Randomly generated output: " << output << "\n\n";
+        //}
 
         bool action = env.decode(output);
         bool outOfBounds = env.stepState(action);
 
-        reward = env.determineReward(cycleCounter);
+        reward = env.determineReward(cycleCounter, episodeCounter);
 
-        if (reward == -1) {
-            std::cout << "Negative reward \n";
-        }
-        else if (reward == 1) {
-            std::cout << "Positive reward \n";
-        }
-        else {
-            std::cout << "No reward \n";
-        }
-
-        for (int i = 0; i < layers.size(); ++i) {
-            //for (int j = 0; j < layers[i].neurons.size(); ++j) {
-            //    std::cout << "Final body potential of Layer " << i << " Neuron " << j << ": " << layers[i].neurons[j].currentBodyPotential() << " \n";
-            //}
-            layers[i].updateWeights(stdpConfig, reward);
-        }
-
-        if (outOfBounds) {
-            std::cout << "Sim out of bounds \n\n";
-            keepRunning = false;
+        //if (reward == -1) {
+        //    std::cout << "Negative reward \n\n";
+        //}
+        //else if (reward == 1) {
+        //    std::cout << "Positive reward \n\n";
+        //}
+        //else {
+        //    std::cout << "No reward \n\n";
+        //}
+        
+        if (trainingMode) {
+            for (int i = 0; i < layers.size(); ++i) {
+                //for (int j = 0; j < layers[i].neurons.size(); ++j) {
+                //    std::cout << "Final body potential of Layer " << i << " Neuron " << j << ": " << layers[i].neurons[j].currentBodyPotential() << " \n";
+                //}
+                layers[i].updateWeights(stdpConfig, reward);
+            }
         }
 
         cycleCounter += 1;
+
+        if (cycleCounter >= env.cycleLimit) {
+            outOfBounds = true;
+        }
+
+        if (outOfBounds) {
+            if (cycleCounter >= env.cycleLimit) {
+                std::cout << "Sim has reached cycleLimit \n";
+            }
+            else {
+                std::cout << "Sim out of bounds \n";
+            }
+            
+            std::cout << "Final State of the Environment: \n";
+            env.printState();
+
+            std::cout << "Number of cycles simulated: " << (cycleCounter - 1) << " \n\n";
+            if (!trainingMode) {
+                env.avgCycles.push_back((double)(cycleCounter - 1));
+            }
+
+            std::cout << "End of episode " << episodeCounter << " \n\n";
+            episodeCounter += 1;
+            if (episodeCounter >= episodeLimit) {
+                if (trainingMode) {
+                    trainingMode = false;
+                    episodeCounter = 0;
+                    episodeLimit = env.testEpisodes;
+                    std::cout << "Training ended, now going to test mode. \n\n";
+                }
+            }
+            env.resetState(env.randomAngle);
+            cycleCounter = 0;
+            
+        }
+
+
         resetSpikes(inputs, numInputs);
         for (int i = 0; i < layers.size(); ++i) {
             layers[i].resetNeurons();
         }
     }
 
-    if (cycleCounter < env.simCycles) {
-        std::cout << "Sim ended due to sim out of bounds \n\n";
+    double avgCycles = 0;
+    for (int i = 0; i < env.avgCycles.size(); ++i) {
+        avgCycles += env.avgCycles[i];
     }
-    else {
-        std::cout << "Sim ended due to reaching cycle limit \n\n";
-    }
+    std::cout << "All episodes simulated. \n";
+    std::cout << "Average Number of cycles for seed " << env.getState().seed << ": " << (avgCycles / env.avgCycles.size()) << "\n\n";
 
-    std::cout << "Final State of the Environment: \n";
-    env.printState();
-
-    std::cout << "Number of cycles simulated: " << cycleCounter << " \n\n";
 
     for (int i = 0; i < layers.size(); ++i) {
         //for (int j = 0; j < layers[i].getInputTime().size(); j++) {
@@ -286,18 +365,18 @@ int run(
         finalOutput.push_back(layers[layers.size() - 1].neurons[i].output);
     }
 
-    std::cout << "Sorting Spikes \n";
+    //std::cout << "Sorting Spikes \n";
     std::sort(spikes.begin(), spikes.end(), sortbysec);
 
-    std::cout << "Generating spike times for each inputs \n";
+    //std::cout << "Generating spike times for each inputs \n";
     std::vector<std::vector<int>> simSpikes = generateSpikes(spikes, cycles);
 
     // Add white space before starting for loop
-    std::cout << "\n";
+    // std::cout << "\n";
     
     resetSpikes(inputs, numInputs); // Make sure everything is false
 
-    std::cout << "Now running \n\n";
+    //std::cout << "Now running \n\n";
     for (int i = 0; i < cycles; i++) {
         fireSpikes(simSpikes, inputs, i);
         for (int j = 0; j < numInputs; ++j) {
@@ -316,7 +395,7 @@ int run(
 
             if (!outputs.empty()) {
                 for (auto k : outputs) {
-                    std::cout << "Layer " << j << ", Neuron " << k << " generated output spike at time " << i << "\n\n";
+                    //std::cout << "Layer " << j << ", Neuron " << k << " generated output spike at time " << i << "\n\n";
                     if (j + 1 < layers.size()) {
                         layers[j + 1].setInputTime(k, i);
                         layers[j + 1].resetCounters(k);
@@ -325,17 +404,17 @@ int run(
             }
         }
 
-        for (int j = 0; j < layers.size(); ++j) {
-            for (int k = 0; k < layers[j].neurons.size(); ++k) {
-                std::cout << "Body potential at time " << i << " of Layer " << j << " Neuron " << k << ": " << layers[j].neurons[k].currentBodyPotential() << " \n";
-            }
-        }
+        //for (int j = 0; j < layers.size(); ++j) {
+        //    for (int k = 0; k < layers[j].neurons.size(); ++k) {
+        //        std::cout << "Body potential at time " << i << " of Layer " << j << " Neuron " << k << ": " << layers[j].neurons[k].currentBodyPotential() << " \n";
+        //    }
+        //}
 
         for (int j = 0; j < finalOutput.size(); ++j) {
             if (finalOutput[j]) {
                 res = j;
-                std::cout << "Output from Layer " << (layers.size() - 1) << " Neuron " << j << " \n";
-                std::cout << "\n";
+                //std::cout << "Output from Layer " << (layers.size() - 1) << " Neuron " << j << " \n";
+                //std::cout << "\n";
                 stopRunning = true;
                 break;
             }
@@ -437,7 +516,7 @@ void fireSpikes(std::vector<std::vector<int>> spikes, bool inputs[], int time)
 {
     for (auto spike : spikes[time]) {
 
-        std::cout << "Firing spike at time:  " << time << " on input " << spike << " \n";
+        //std::cout << "Firing spike at time:  " << time << " on input " << spike << " \n";
         inputs[spike] = true;
     }
 }

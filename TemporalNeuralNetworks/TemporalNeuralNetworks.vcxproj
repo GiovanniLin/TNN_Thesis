@@ -152,6 +152,7 @@
     <ClCompile Include="Network\STDPConfigurator.cpp" />
     <ClCompile Include="Network\TemporalNeuralNetworks.cpp" />
     <ClCompile Include="Environment\State.cpp" />
+    <ClCompile Include="Network\WeightConfigurator.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Environment\Environment.h" />
@@ -167,12 +168,15 @@
     <ClInclude Include="Network\STDPConfigurator.h" />
     <ClInclude Include="Network\TemporalNeuralNetworks.h" />
     <ClInclude Include="Environment\State.h" />
+    <ClInclude Include="Network\WeightConfigurator.h" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="mapping_config.txt" />
     <Text Include="network_config.txt" />
     <Text Include="spike_config.txt" />
     <Text Include="stdp_config.txt" />
+    <Text Include="weight_config_naive.txt" />
+    <Text Include="weight_config.txt" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

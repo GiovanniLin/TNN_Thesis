@@ -53,6 +53,7 @@ void Neuron::checkForIF()
 {
 	for (size_t i = 0; i < this->inputs.size(); i++) {
 		if (this->ifType->getSpikeFlag(i)) {
+			//std::cout << "Synapse: " << i << " Integrate and Fire. \n";
 			this->integrateFire(i);
 		}
 	}
@@ -61,6 +62,11 @@ void Neuron::checkForIF()
 void Neuron::removeOutputSpike()
 {
 	this->output = false;
+}
+
+void Neuron::setWeight(int index, double weight)
+{
+	inputs[index]->setWeight(weight);
 }
 
 void Neuron::updateWeight(int index, int typeTNN, STDPConfigurator& config, int decayCounter, int operation)

@@ -36,10 +36,12 @@ Layer 0:
 Neurons: 16
 Threshold: 6
 Type: 0
+ReadWeights: 1
 End
 
 Layer 1:
 Neurons: 2
 Threshold: 2
 Type: 1
+ReadWeights: 1
 End

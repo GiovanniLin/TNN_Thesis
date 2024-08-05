@@ -1,8 +1,8 @@
 STDP Config:
 
 C-TNN:
-Capture: 0.0625
-Backoff: 0.0625
+Capture: 0
+Backoff: 0
 Search: 0
 Wmax: 8
 

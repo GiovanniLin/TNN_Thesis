@@ -15,6 +15,8 @@ public:
 	void setWTA(bool b);
 	int getTypeTNN();
 	void setTypeTNN(int typeTNN);
+	bool getReadWeights();
+	void setReadWeights(bool readWeights);
 	std::vector<int> getInputTime();
 	std::vector<int> getOutputTime();
 	std::vector<std::vector<int>> getDecayCounters();
@@ -23,6 +25,7 @@ public:
 	void checkNeuronThresholds(int time);
 	std::vector<int> checkOutputs();
 	void removeOutputSpikes();
+	void setWeights(std::vector<std::vector<double>> weights);
 	void updateWeights(STDPConfigurator& config, int reward);
 	void initializeVectors(int x, int y);
 	void incrementCounters();
@@ -33,10 +36,11 @@ public:
 	int identifyWeightUpdateRTNN(int r, int x, int z);
 	void resetNeurons();
 private:
-	bool wta =  false;
+	bool wta = false;
 	int highestBodyPotential = -1;
 	int highestBodyPotentialIndex = -1;
 	int typeTNN = -1; // -1 is not set, 0 is C-TNN, 1 is R-TNN
+	bool readWeights = false;
 	std::vector<std::vector<int>> decayCounters;
 	std::vector<int> inputTime;
 	std::vector<int> outputTime;

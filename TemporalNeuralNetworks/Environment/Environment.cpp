@@ -10,13 +10,17 @@ State Environment::getState()
 	return state;
 }
 
+void Environment::resetState(bool random) {
+	state.resetState(random);
+}
+
 bool Environment::decode(int output)
 {
 	if (output == 0) {
-		return false;
+		return true;
 	}
 	else {
-		return true;
+		return false;
 	}
 }
 
@@ -28,13 +32,18 @@ void Environment::printState()
 	std::cout << "Velocity of cart: " << state.getDisplacementDot() << " \n\n";
 }
 
-int Environment::determineReward(int cycleCounter)
+int Environment::determineReward(int cycleCounter, int episodeCounter)
 {
-	if (cycleCounter % 50 == 0) {
-		return 1;
-	}
-	else if (std::abs(state.getAngleRad()) > state.angleThreshold) {
-		return -1;
+	if (episodeCounter >= addRewardAfter) {
+		if (cycleCounter % rewardCycleThreshold == 0 && cycleCounter != 0) {
+			return 1;
+		}
+		else if (std::abs(state.getAngleRad()) > state.angleThreshold) {
+			return -1;
+		}
+		else {
+			return 0;
+		}
 	}
 	else {
 		return 0;
@@ -56,10 +65,10 @@ void Environment::testMath()
 
 	//force = -force;
 
-	double costheta = std::cos(state.getAngleRad());
-	double sintheta = std::sin(state.getAngleRad());
+	double costheta = std::cos(theta);
+	double sintheta = std::sin(theta);
 
-	double temp = (force + state.poleML * (state.getAngleDot() * state.getAngleDot()) * sintheta) / state.totalMass;
+	double temp = (force + state.poleML * (thetaDot * thetaDot) * sintheta) / state.totalMass;
 	double thetaAcc = (state.gravity * sintheta - costheta * temp) / (state.length * (4.0 / 3.0 - state.massPole * (costheta * costheta) / state.totalMass));
 	double xAcc = temp - state.poleML * thetaAcc * costheta / state.totalMass;
 
@@ -77,7 +86,10 @@ void Environment::testMath()
 
 	//force = -force;
 
-	temp = (force + state.poleML * (state.getAngleDot() * state.getAngleDot()) * sintheta) / state.totalMass;
+	costheta = std::cos(theta);
+	sintheta = std::sin(theta);
+
+	temp = (force + state.poleML * (thetaDot * thetaDot) * sintheta) / state.totalMass;
 	thetaAcc = (state.gravity * sintheta - costheta * temp) / (state.length * (4.0 / 3.0 - state.massPole * (costheta * costheta) / state.totalMass));
 	xAcc = temp - state.poleML * thetaAcc * costheta / state.totalMass;
 
@@ -95,7 +107,10 @@ void Environment::testMath()
 
 	force = -force;
 
-	temp = (force + state.poleML * (state.getAngleDot() * state.getAngleDot()) * sintheta) / state.totalMass;
+	costheta = std::cos(theta);
+	sintheta = std::sin(theta);
+
+	temp = (force + state.poleML * (thetaDot * thetaDot) * sintheta) / state.totalMass;
 	thetaAcc = (state.gravity * sintheta - costheta * temp) / (state.length * (4.0 / 3.0 - state.massPole * (costheta * costheta) / state.totalMass));
 	xAcc = temp - state.poleML * thetaAcc * costheta / state.totalMass;
 
