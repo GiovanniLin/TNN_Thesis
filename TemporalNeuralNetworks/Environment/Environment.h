@@ -1,6 +1,7 @@
 #pragma once
 #include <iomanip>
 #include <iostream>
+#include <fstream>
 #include <limits>
 #include <cmath>
 #include "State.h"
@@ -13,6 +14,7 @@ public:
 	void resetState(bool random);
 	bool decode(int output);
 	void printState();
+	void writeState(std::ofstream& myfile, int cycle);
 	int determineReward(int cycleCounter, int episodeCounter);
 	bool stepState(bool action);
 	void testMath();

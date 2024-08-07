@@ -106,5 +106,6 @@
     <Text Include="stdp_config.txt" />
     <Text Include="weight_config.txt" />
     <Text Include="weight_config_naive.txt" />
+    <Text Include="results.csv" />
   </ItemGroup>
 </Project>

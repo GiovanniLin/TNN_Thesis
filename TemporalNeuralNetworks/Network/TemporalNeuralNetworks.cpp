@@ -11,6 +11,10 @@ int main()
     Environment env;
     env.testPrint();
 
+    std::ofstream myfile;
+    myfile.open("results.csv");
+    myfile << "Cycle, Angle, AngleDot, Displacement, DisplacementDot\n";
+
     std::cout << "Reading Network Configuration \n";
     NetworkConfigurator networkConfig("network_config.txt");
 
@@ -227,6 +231,9 @@ int main()
         std::vector<int> encodingAngle = networkConfig.getEncoding(0, inputAngle);
 
         //env.printState();
+        if (episodeCounter == 0 && !trainingMode) {
+            env.writeState(myfile, cycleCounter);
+        }
 
         //std::cout << "Spikes: " << " \n";
         //for (int i = 0; i < encodingAngle.size(); ++i) {
@@ -341,6 +348,8 @@ int main()
             }
         }
     }
+
+    myfile.close();
 
     // Delete dynamically allocated array for inputs
     delete[] inputs;

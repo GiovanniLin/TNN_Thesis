@@ -32,6 +32,11 @@ void Environment::printState()
 	std::cout << "Velocity of cart: " << state.getDisplacementDot() << " \n\n";
 }
 
+void Environment::writeState(std::ofstream& myfile, int cycle)
+{
+	myfile << cycle << ", " << state.getAngle() << ", " << state.getAngleDot() << ", " << state.getDisplacement() << ", " << state.getDisplacementDot() << "\n";
+}
+
 int Environment::determineReward(int cycleCounter, int episodeCounter)
 {
 	if (episodeCounter >= addRewardAfter) {

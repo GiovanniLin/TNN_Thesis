@@ -171,6 +171,7 @@
     <ClInclude Include="Network\WeightConfigurator.h" />
   </ItemGroup>
   <ItemGroup>
+    <Text Include="results.csv" />
     <Text Include="mapping_config.txt" />
     <Text Include="network_config.txt" />
     <Text Include="spike_config.txt" />
