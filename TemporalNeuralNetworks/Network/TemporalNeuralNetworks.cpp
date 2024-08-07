@@ -319,7 +319,8 @@ int main()
         avgCycles += env.avgCycles[i];
     }
     std::cout << "All episodes simulated. \n";
-    std::cout << "Average Number of cycles for seed " << env.getState().seed << ": " << (avgCycles / env.avgCycles.size()) << "\n\n";
+    std::cout << "Average Number of succesfull cycles for seed " << env.getState().seed << ": " << (avgCycles / env.avgCycles.size()) << "\n";
+    std::cout << "Total Number of succesfull cycles for seed " << env.getState().seed << ": " << (avgCycles) << "\n\n";
 
 
     for (int i = 0; i < layers.size(); ++i) {

@@ -9,10 +9,10 @@ class State
 public:
 	State();
 	const double gravity = 9.8;
-	const double massCart = 1.0;
-	const double massPole = 0.1;
+	const double massCart = 0.711;
+	const double massPole = 0.209;
 	const double totalMass = massCart + massPole;
-	const double length = 0.5;
+	const double length = 0.326;
 	const double poleML = massPole * length;
 	const double forceMagnitude = 10.0;
 	const double tau = 0.02; // Timestep
@@ -20,7 +20,7 @@ public:
 	const double displacementThreshold = 2.4;
 	const double randLowerBound = -2;
 	const double randUpperBound = 2;
-	const int seed = 7; // 0 to 7
+	const int seed = 0; // 0 to 7
 	const bool euler = false;
 	std::uniform_real_distribution<double> unif;
 	std::default_random_engine re;
