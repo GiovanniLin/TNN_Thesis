@@ -16,7 +16,7 @@ public:
 	const double poleML = massPole * length;
 	const double forceMagnitude = 10.0;
 	const double tau = 0.02; // Timestep
-	const double angleThreshold = 12.0 * 2.0 * pi() / 360.0;
+	const double angleThreshold = 12.0 * (pi()/180);
 	const double displacementThreshold = 2.4;
 	const double randLowerBound = -2;
 	const double randUpperBound = 2;
@@ -28,11 +28,13 @@ public:
 	void setDisplacement(double x);
 	double getDisplacementDot();
 	void setDisplacementDot(double xDot);
+	double getDisplacementDotDot();
 	double getAngle();
 	double getAngleRad();
 	void setAngle(double theta);
 	double getAngleDot();
 	void setAngleDot(double thetaDot);
+	double getAngleDotDot();
 	double getAnglePrev();
 	bool step(bool action);
 	void resetState(bool random);
@@ -40,8 +42,10 @@ public:
 private:
 	double displacement = 0; // Displacement of cart
 	double displacementDot = 0; // Derivative of displacement, velocity of cart
+	double displacementDotDot = 0;
 	double angle = 0; // Angle of pole
 	double angleDot = 0; // Derivative of pole angle, velocity of pole
+	double angleDotDot = 0;
 	double anglePrev = 0;
 };
 

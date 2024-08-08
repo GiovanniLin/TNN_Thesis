@@ -13,7 +13,7 @@ int main()
 
     std::ofstream myfile;
     myfile.open("results.csv");
-    myfile << "Cycle, Angle, AngleDot, Displacement, DisplacementDot\n";
+    myfile << "Cycle, Angle, AngleDot, AngleDotDot, Displacement, DisplacementDot, DisplacementDotDot\n";
 
     std::cout << "Reading Network Configuration \n";
     NetworkConfigurator networkConfig("network_config.txt");
@@ -297,6 +297,9 @@ int main()
             std::cout << "Number of cycles simulated: " << (cycleCounter - 1) << " \n\n";
             if (!trainingMode) {
                 env.avgCycles.push_back((double)(cycleCounter - 1));
+                if (episodeCounter == 0) {
+                    env.writeState(myfile, cycleCounter);
+                }
             }
 
             std::cout << "End of episode " << episodeCounter << " \n\n";

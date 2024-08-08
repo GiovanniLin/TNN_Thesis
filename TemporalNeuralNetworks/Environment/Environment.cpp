@@ -34,7 +34,7 @@ void Environment::printState()
 
 void Environment::writeState(std::ofstream& myfile, int cycle)
 {
-	myfile << cycle << ", " << state.getAngle() << ", " << state.getAngleDot() << ", " << state.getDisplacement() << ", " << state.getDisplacementDot() << "\n";
+	myfile << cycle << ", " << state.getAngle() << ", " << state.getAngleDot() << ", " << state.getAngleDotDot() << ", " << state.getDisplacement() << ", " << state.getDisplacementDot() << ", " << state.getDisplacementDotDot() << "\n";
 }
 
 int Environment::determineReward(int cycleCounter, int episodeCounter)

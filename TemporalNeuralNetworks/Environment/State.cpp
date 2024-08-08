@@ -26,6 +26,11 @@ void State::setDisplacementDot(double xDot)
 	this->displacementDot = xDot;
 }
 
+double State::getDisplacementDotDot()
+{
+	return displacementDotDot;
+}
+
 double State::getAngle()
 {
 	return angle / (2 * pi()) * 360;
@@ -51,6 +56,11 @@ void State::setAngleDot(double thetaDot)
 	this->angleDot = thetaDot;
 }
 
+double State::getAngleDotDot()
+{
+	return angleDotDot;
+}
+
 double State::getAnglePrev()
 {
 	return anglePrev;
@@ -74,15 +84,17 @@ bool State::step(bool action)
 	double sintheta = std::sin(theta);
 
 	double temp = (force + poleML * (thetaDot * thetaDot) * sintheta) / totalMass;
-	double thetaAcc = (gravity * sintheta - costheta * temp) / (length * (4.0 / 3.0 - massPole * (costheta * costheta) / totalMass));
+	double thetaAcc = (gravity * sintheta - costheta * temp) / (length * ((4.0 / 3.0) - massPole * (costheta * costheta) / totalMass));
 	double xAcc = temp - poleML * thetaAcc * costheta / totalMass;
 
+	angleDotDot = thetaAcc;
+	displacementDotDot = xAcc;
 
 	if (euler) {
-		x = x + tau * xDot;
-		xDot = xDot + tau * xAcc;
-		theta = theta + tau * thetaDot;
-		thetaDot = thetaDot + tau * thetaAcc;
+		x += tau * xDot;
+		xDot += tau * xAcc;
+		theta += tau * thetaDot;
+		thetaDot += tau * thetaAcc;
 	}
 	else {
 		xDot = xDot + tau * xAcc;
