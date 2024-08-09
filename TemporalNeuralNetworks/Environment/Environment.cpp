@@ -82,7 +82,7 @@ void Environment::testMath()
 	theta = theta + state.tau * thetaDot;
 	thetaDot = thetaDot + state.tau * thetaAcc;
 
-	std::cout << "Pole Angle after 1 cycle: " << (theta / (2 * pi()) * 360) << "\n";
+	std::cout << "Pole Angle after 1 cycle: " << (theta / (2 * M_PI) * 360) << "\n";
 	std::cout << "Pole Velocity after 1 cycle: " << std::fixed << std::setprecision(std::numeric_limits<double>::max_digits10) << thetaDot << "\n";
 	std::cout << "Pole acceleration in 1 cycle: " << thetaAcc << "\n";
 	std::cout << "Cart Displacement after 1 cycle: " << x << "\n";
@@ -103,7 +103,7 @@ void Environment::testMath()
 	theta = theta + state.tau * thetaDot;
 	thetaDot = thetaDot + state.tau * thetaAcc;
 
-	std::cout << "Pole Angle after 2 cycles: " << (theta / (2 * pi()) * 360) << "\n";
+	std::cout << "Pole Angle after 2 cycles: " << (theta / (2 * M_PI) * 360) << "\n";
 	std::cout << "Pole Velocity after 2 cycles: " << thetaDot << "\n";
 	std::cout << "Pole acceleration in 2 cycles: " << thetaAcc << "\n";
 	std::cout << "Cart Displacement after 2 cycles: " << x << "\n";
@@ -124,7 +124,7 @@ void Environment::testMath()
 	theta = theta + state.tau * thetaDot;
 	thetaDot = thetaDot + state.tau * thetaAcc;
 
-	std::cout << "Pole Angle after 3 cycles: " << (theta / (2 * pi()) * 360) << "\n";
+	std::cout << "Pole Angle after 3 cycles: " << (theta / (2 * M_PI) * 360) << "\n";
 	std::cout << "Pole Velocity after 3 cycles: " << thetaDot << "\n";
 	std::cout << "Pole acceleration in 3 cycles: " << thetaAcc << "\n";
 	std::cout << "Cart Displacement after 3 cycles: " << x << "\n";
