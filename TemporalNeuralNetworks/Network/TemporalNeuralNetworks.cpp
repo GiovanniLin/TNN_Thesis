@@ -6,29 +6,8 @@
 const std::string INDENT = "    ";
 int reward = 0;
 
-int main()
+void printNetworkConfig(NetworkConfigurator& networkConfig, std::vector<Layer>& layers)
 {
-    Environment env;
-    env.testPrint();
-
-    std::ofstream myfile;
-    myfile.open("results.csv");
-    myfile << "Cycle, Angle, AngleDot, AngleDotDot, Displacement, DisplacementDot, DisplacementDotDot\n";
-
-    std::cout << "Reading Network Configuration \n";
-    NetworkConfigurator networkConfig("network_config.txt");
-
-    std::cout << "Creating network layers \n\n";
-    std::vector<Layer> layers;
-
-    try {
-        layers = networkConfig.createLayers();
-    }
-    catch (std::runtime_error& e) {
-        std::cout << e.what();
-        return 1;
-    }
-
     std::cout << "Network Configuration: \n";
     std::cout << INDENT << "Number of Inputs: " << networkConfig.getNumInputs() << "\n";
     std::cout << INDENT << "Number of Layers: " << networkConfig.getNumLayers() << " \n";
@@ -66,19 +45,10 @@ int main()
         std::cout << "]\n";
     }
     std::cout << INDENT << "\n";
+}
 
-    bool readWeights = false;
-
-    for (int i = 0; i < layers.size(); ++i) {
-        if (layers[i].getReadWeights()) {
-            readWeights = true;
-            break;
-        }
-    }
-
-    std::cout << "Reading STDP Configuration \n\n";
-    STDPConfigurator stdpConfig("stdp_config.txt");
-
+void printStdpConfig(STDPConfigurator& stdpConfig)
+{
     std::cout << "STDP Configuration: \n";
     std::cout << INDENT << "C-TNN Parameters: \n";
     std::cout << INDENT << INDENT << "Capture: " << stdpConfig.getCapture() << "\n";
@@ -91,6 +61,44 @@ int main()
     std::cout << INDENT << INDENT << "Punishment Potentiation: " << stdpConfig.getPunishmentP() << "\n";
     std::cout << INDENT << INDENT << "Punishment Depression: " << stdpConfig.getPunishmentD() << "\n";
     std::cout << INDENT << INDENT << "Punishment Window: " << stdpConfig.getPunishmentW() << "\n\n";
+}
+
+int main()
+{
+    Environment env;
+    env.testPrint();
+
+    std::ofstream myfile;
+    myfile.open("results.csv");
+    myfile << "Cycle, Angle, AngleDot, AngleDotDot, Displacement, DisplacementDot, DisplacementDotDot\n";
+
+    std::cout << "Reading Network Configuration \n";
+    NetworkConfigurator networkConfig("network_config.txt");
+
+    std::cout << "Creating network layers \n\n";
+    std::vector<Layer> layers;
+
+    try {
+        layers = networkConfig.createLayers();
+    }
+    catch (std::runtime_error& e) {
+        std::cout << e.what();
+        return 1;
+    }
+    printNetworkConfig(networkConfig, layers);
+
+    bool readWeights = false;
+
+    for (int i = 0; i < layers.size(); ++i) {
+        if (layers[i].getReadWeights()) {
+            readWeights = true;
+            break;
+        }
+    }
+
+    std::cout << "Reading STDP Configuration \n\n";
+    STDPConfigurator stdpConfig("stdp_config.txt");
+    printStdpConfig(stdpConfig);
 
     std::cout << "Reading Mapping Configuration \n\n";
     MappingConfigurator mappingConfig("mapping_config.txt");
@@ -171,22 +179,6 @@ int main()
 
     //env.testMath();
 
-    int cycleCounter = 0;
-
-    int episodeCounter = 0;
-
-    int episodeLimit = 0;
-
-    bool trainingMode = env.trainingMode;
-
-    if (trainingMode) {
-        episodeLimit = env.trainingEpisodes;
-    }
-    else
-    {
-        episodeLimit = env.testEpisodes;
-    }
-
     std::cout << "Connecting inputs \n";
     connectInputs(inputs, numInputs, layers[0], inputMap);
 
@@ -216,14 +208,71 @@ int main()
         //std::cout << "\n";
     }
 
+    runEpisodes(env, layers, networkConfig, stdpConfig, myfile, inputs, inputMap, layerMap);
+
+    double avgCycles = 0;
+    for (int i = 0; i < env.getAvgCycles().size(); ++i) {
+        avgCycles += env.getAvgCycles()[i];
+    }
+    std::cout << "All episodes simulated. \n";
+    std::cout << "Average Number of succesfull cycles for seed " << env.getState().GetSeed() << ": " << (avgCycles / env.getAvgCycles().size()) << "\n";
+    std::cout << "Total Number of succesfull cycles for seed " << env.getState().GetSeed() << ": " << (avgCycles) << "\n\n";
+
+
+    for (int i = 0; i < layers.size(); ++i) {
+        //for (int j = 0; j < layers[i].getInputTime().size(); j++) {
+        //    std::cout << "Input spike on Layer " << i << " on input " << j << " at time " << layers[i].getInputTime()[j] << " \n";
+        //}
+        //for (int j = 0; j < layers[i].getOutputTime().size(); j++) {
+        //    std::cout << "Output spike on Layer " << i << " on output " << j << " at time " << layers[i].getOutputTime()[j] << " \n";
+        //}
+        //for (int j = 0; j < layers[i].getDecayCounters().size(); j++) {
+        //    for (int k = 0; k < layers[i].getDecayCounters()[j].size(); ++k) {
+        //        std::cout << "Decay counter on Layer " << i << " Input " << j << " Neuron " << k << ": " << layers[i].getDecayCounters()[j][k] << " \n";
+        //    }
+        //}
+        for (int j = 0; j < layers[i].getNeurons().size(); ++j) {
+            for (int k = 0; k < layers[i].getNeurons()[j].inputs.size(); ++k) {
+                std::cout << "Final weight of Layer " << i << " Neuron " << j << " Input " << k << " : " << layers[i].getNeurons()[j].inputs[k]->getWeight() << " \n";
+            }
+        }
+    }
+
+    myfile.close();
+
+    // Delete dynamically allocated array for inputs
+    delete[] inputs;
+
+    return 0;
+}
+
+void runEpisodes(Environment& env, std::vector<Layer>& layers, NetworkConfigurator& networkConfig, STDPConfigurator& stdpConfig,
+    std::ofstream& myfile, bool inputs[], std::vector<std::tuple<int, int, int>> inputMap, std::vector<std::tuple<int, int, int>> layerMap)
+{
+    int cycleCounter = 0;
+    int episodeCounter = 0;
+    int episodeLimit = 0;
+    bool trainingMode = env.getTrainingMode();
+    int numInputs = networkConfig.getNumInputs();
+
+    if (trainingMode) {
+        episodeLimit = env.getTrainingEpisodes();
+    }
+    else
+    {
+        episodeLimit = env.getTestEpisodes();
+    }
+
+    env.resetState(env.useRandomAngle());
+
     while (episodeCounter < episodeLimit) {
 
         for (int i = 0; i < layers.size(); ++i) {
             if (i == 0) {
-                layers[i].initializeVectors(numInputs, layers[i].neurons.size());
+                layers[i].initializeVectors(numInputs, static_cast<int>(layers[i].getNeurons().size()));
             }
             else {
-                layers[i].initializeVectors(layers[i - 1].neurons.size(), layers[i].neurons.size());
+                layers[i].initializeVectors(static_cast<int>(layers[i - 1].getNeurons().size()), static_cast<int>(layers[i].getNeurons().size()));
             }
         }
 
@@ -267,7 +316,7 @@ int main()
         //else {
         //    std::cout << "No reward \n\n";
         //}
-        
+
         if (trainingMode) {
             for (int i = 0; i < layers.size(); ++i) {
                 //for (int j = 0; j < layers[i].neurons.size(); ++j) {
@@ -277,26 +326,26 @@ int main()
             }
         }
 
-        cycleCounter += 1;
+        cycleCounter += 30;
 
-        if (cycleCounter >= env.cycleLimit) {
+        if (cycleCounter >= env.getCycleLimit()) {
             outOfBounds = true;
         }
 
         if (outOfBounds) {
-            if (cycleCounter >= env.cycleLimit) {
+            if (cycleCounter >= env.getCycleLimit()) {
                 std::cout << "Sim has reached cycleLimit \n";
             }
             else {
                 std::cout << "Sim out of bounds \n";
             }
-            
+
             std::cout << "Final State of the Environment: \n";
             env.printState();
 
             std::cout << "Number of cycles simulated: " << (cycleCounter - 1) << " \n\n";
             if (!trainingMode) {
-                env.avgCycles.push_back((double)(cycleCounter - 1));
+                env.recordAvgCycles((double)(cycleCounter - 1));
                 if (episodeCounter == 0) {
                     env.writeState(myfile, cycleCounter);
                 }
@@ -308,13 +357,13 @@ int main()
                 if (trainingMode) {
                     trainingMode = false;
                     episodeCounter = 0;
-                    episodeLimit = env.testEpisodes;
+                    episodeLimit = env.getTestEpisodes();
                     std::cout << "Training ended, now going to test mode. \n\n";
                 }
             }
-            env.resetState(env.randomAngle);
+            env.resetState(env.useRandomAngle());
             cycleCounter = 0;
-            
+
         }
 
 
@@ -323,41 +372,6 @@ int main()
             layers[i].resetNeurons();
         }
     }
-
-    double avgCycles = 0;
-    for (int i = 0; i < env.avgCycles.size(); ++i) {
-        avgCycles += env.avgCycles[i];
-    }
-    std::cout << "All episodes simulated. \n";
-    std::cout << "Average Number of succesfull cycles for seed " << env.getState().seed << ": " << (avgCycles / env.avgCycles.size()) << "\n";
-    std::cout << "Total Number of succesfull cycles for seed " << env.getState().seed << ": " << (avgCycles) << "\n\n";
-
-
-    for (int i = 0; i < layers.size(); ++i) {
-        //for (int j = 0; j < layers[i].getInputTime().size(); j++) {
-        //    std::cout << "Input spike on Layer " << i << " on input " << j << " at time " << layers[i].getInputTime()[j] << " \n";
-        //}
-        //for (int j = 0; j < layers[i].getOutputTime().size(); j++) {
-        //    std::cout << "Output spike on Layer " << i << " on output " << j << " at time " << layers[i].getOutputTime()[j] << " \n";
-        //}
-        //for (int j = 0; j < layers[i].getDecayCounters().size(); j++) {
-        //    for (int k = 0; k < layers[i].getDecayCounters()[j].size(); ++k) {
-        //        std::cout << "Decay counter on Layer " << i << " Input " << j << " Neuron " << k << ": " << layers[i].getDecayCounters()[j][k] << " \n";
-        //    }
-        //}
-        for (int j = 0; j < layers[i].neurons.size(); ++j) {
-            for (int k = 0; k < layers[i].neurons[j].inputs.size(); ++k) {
-                std::cout << "Final weight of Layer " << i << " Neuron " << j << " Input " << k << " : " << layers[i].neurons[j].inputs[k]->getWeight() << " \n";
-            }
-        }
-    }
-
-    myfile.close();
-
-    // Delete dynamically allocated array for inputs
-    delete[] inputs;
-
-    return 0;
 }
 
 int run(
@@ -372,10 +386,10 @@ int run(
     int res = -1;
     bool stopRunning = false;
 
-    std::vector<std::reference_wrapper<bool>> finalOutput;
+    std::vector<std::reference_wrapper<const bool>> finalOutput;
 
-    for (int i = 0; i < layers[layers.size() - 1].neurons.size(); ++i) {
-        finalOutput.push_back(layers[layers.size() - 1].neurons[i].output);
+    for (int i = 0; i < layers[layers.size() - 1].getNeurons().size(); ++i) {
+        finalOutput.push_back(layers[layers.size() - 1].getNeurons()[i].output);
     }
 
     //std::cout << "Sorting Spikes \n";
@@ -473,7 +487,7 @@ void connectInputs(bool inputs[], int numInputs, Layer& inputLayer, std::vector<
         bool* ptr = &(inputs[inputIndex]);
 
         //std::cout << "Setting input \n";
-        inputLayer.neurons[neuronIndex].overwriteInput(neuronInputIndex, weight, ptr);
+        inputLayer.getMutableNeurons()[neuronIndex].overwriteInput(neuronInputIndex, weight, ptr);
     }
 }
 
@@ -490,18 +504,18 @@ void connectLayers(Layer& firstLayer, Layer& secondLayer, std::vector<std::tuple
         int secondLayerNeuronInputIndex = std::get<1>(secondLayerNeuronIndices);
 
         int weight = std::get<2>(mapping);
-        bool* ptr = &(firstLayer.neurons[firstLayerNeuronIndex].output);
+        bool* ptr = &(firstLayer.getMutableNeurons()[firstLayerNeuronIndex].output);
 
-        secondLayer.neurons[secondLayerNeuronIndex].overwriteInput(secondLayerNeuronInputIndex, weight, ptr);
+        secondLayer.getMutableNeurons()[secondLayerNeuronIndex].overwriteInput(secondLayerNeuronInputIndex, weight, ptr);
     }
 }
 
 std::tuple<int, int> getNeuronInputIndex(Layer& inputLayer, std::tuple<int, int, int> mapping)
 {
     int neuronIndex = 0;
-    int neuronInputIndex = std::get<1>(mapping);
+    size_t neuronInputIndex = std::get<1>(mapping);
 
-    for (auto neuron : inputLayer.neurons) {
+    for (auto neuron : inputLayer.getNeurons()) {
         if (neuron.inputs.size() <= neuronInputIndex) {
             neuronInputIndex -= neuron.inputs.size();
             neuronIndex += 1;

@@ -6,7 +6,7 @@ State::State()
 	this->re = std::default_random_engine(seed);
 }
 
-double State::getDisplacement()
+double State::getDisplacement() const
 {
 	return displacement;
 }
@@ -16,7 +16,7 @@ void State::setDisplacement(double x)
 	this->displacement = x;
 }
 
-double State::getDisplacementDot()
+double State::getDisplacementDot() const
 {
 	return displacementDot;
 }
@@ -26,17 +26,17 @@ void State::setDisplacementDot(double xDot)
 	this->displacementDot = xDot;
 }
 
-double State::getDisplacementDotDot()
+double State::getDisplacementDotDot() const
 {
 	return displacementDotDot;
 }
 
-double State::getAngle()
+double State::getAngle() const
 {
-	return angle / (2 * pi()) * 360;
+	return angle / (2 * M_PI) * 360;
 }
 
-double State::getAngleRad()
+double State::getAngleRad() const
 {
 	return angle;
 }
@@ -46,7 +46,7 @@ void State::setAngle(double theta)
 	this->angle = theta;
 }
 
-double State::getAngleDot()
+double State::getAngleDot() const
 {
 	return angleDot;
 }
@@ -56,12 +56,12 @@ void State::setAngleDot(double thetaDot)
 	this->angleDot = thetaDot;
 }
 
-double State::getAngleDotDot()
+double State::getAngleDotDot() const
 {
 	return angleDotDot;
 }
 
-double State::getAnglePrev()
+double State::getAnglePrev() const
 {
 	return anglePrev;
 }
@@ -126,7 +126,7 @@ void State::resetState(bool random)
 	setDisplacement(0.0);
 	setDisplacementDot(0.0);
 	if (random) {
-		setAngle(randomAngle() * 2.0 * pi() / 360.0);
+		setAngle(randomAngle() * 2.0 * M_PI / 360.0);
 	}
 	else
 	{

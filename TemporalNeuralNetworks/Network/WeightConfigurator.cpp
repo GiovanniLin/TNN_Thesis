@@ -85,7 +85,7 @@ void WeightConfigurator::readWeights(std::vector<Layer>& layers)
 
     for (int i = 0; i < layers.size(); ++i) {
         if (!weights[i].empty()) {
-            if (layers[i].neurons.size() != weights[i].size()) {
+            if (layers[i].getNeurons().size() != weights[i].size()) {
                 throw std::runtime_error("Reading weights failed, number of neurons in weights is not equal to number of neurons in network");
             }
         }
