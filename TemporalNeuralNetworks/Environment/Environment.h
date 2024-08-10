@@ -26,6 +26,7 @@ public:
 	bool randomAngle = true;
 	int rewardCycleThreshold = 500;
 	int cycleLimit = 10000;
+	int episodeResultDump = 0;
 	std::vector<double> avgCycles;
 private:
 	State state;
