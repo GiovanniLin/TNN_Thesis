@@ -326,7 +326,7 @@ void runEpisodes(Environment& env, std::vector<Layer>& layers, NetworkConfigurat
             }
         }
 
-        cycleCounter += 30;
+        cycleCounter += 1;
 
         if (cycleCounter >= env.getCycleLimit()) {
             outOfBounds = true;
