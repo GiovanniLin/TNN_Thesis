@@ -277,10 +277,13 @@ void runEpisodes(Environment& env, std::vector<Layer>& layers, NetworkConfigurat
         }
 
         double inputAngle = env.getState().getAngle();
+        if (cycleCounter == 0) {
+            std::cout << "Starting Angle: " << inputAngle << " \n\n";
+        }
         std::vector<int> encodingAngle = networkConfig.getEncoding(0, inputAngle);
 
         //env.printState();
-        if (episodeCounter == 0 && !trainingMode) {
+        if (episodeCounter == env.episodeResultDump && !trainingMode) {
             env.writeState(myfile, cycleCounter);
         }
 
@@ -346,7 +349,9 @@ void runEpisodes(Environment& env, std::vector<Layer>& layers, NetworkConfigurat
             std::cout << "Number of cycles simulated: " << (cycleCounter - 1) << " \n\n";
             if (!trainingMode) {
                 env.recordAvgCycles((double)(cycleCounter - 1));
-                if (episodeCounter == 0) {
+                if (episodeCounter == episodeResultDump) {
+                env.avgCycles.push_back((double)(cycleCounter - 1));
+                if (episodeCounter == env.episodeResultDump) {
                     env.writeState(myfile, cycleCounter);
                 }
             }
