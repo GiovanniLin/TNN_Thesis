@@ -24,6 +24,7 @@ public:
 	int getTestEpisodes() const { return testEpisodes; }
 	bool useRandomAngle() const { return randomAngle; }
 	int getCycleLimit() const { return cycleLimit; }
+	int getEpisodeResultsDump() const { return episodeResultDump; }
 	const std::vector<double>& getAvgCycles() const { return avgCycles; }
 private:
 	State state;

@@ -214,7 +214,7 @@ int main()
     for (int i = 0; i < env.getAvgCycles().size(); ++i) {
         avgCycles += env.getAvgCycles()[i];
     }
-    std::cout << "All episodes simulated. \n";
+    std::cout << "All episodes simulated. Number of episodes: " << env.getAvgCycles().size() <<"\n";
     std::cout << "Average Number of succesfull cycles for seed " << env.getState().GetSeed() << ": " << (avgCycles / env.getAvgCycles().size()) << "\n";
     std::cout << "Total Number of succesfull cycles for seed " << env.getState().GetSeed() << ": " << (avgCycles) << "\n\n";
 
@@ -283,7 +283,7 @@ void runEpisodes(Environment& env, std::vector<Layer>& layers, NetworkConfigurat
         std::vector<int> encodingAngle = networkConfig.getEncoding(0, inputAngle);
 
         //env.printState();
-        if (episodeCounter == env.episodeResultDump && !trainingMode) {
+        if (episodeCounter == env.getEpisodeResultsDump() && !trainingMode) {
             env.writeState(myfile, cycleCounter);
         }
 
@@ -349,9 +349,7 @@ void runEpisodes(Environment& env, std::vector<Layer>& layers, NetworkConfigurat
             std::cout << "Number of cycles simulated: " << (cycleCounter - 1) << " \n\n";
             if (!trainingMode) {
                 env.recordAvgCycles((double)(cycleCounter - 1));
-                if (episodeCounter == episodeResultDump) {
-                env.avgCycles.push_back((double)(cycleCounter - 1));
-                if (episodeCounter == env.episodeResultDump) {
+                if (episodeCounter == env.getEpisodeResultsDump()) {
                     env.writeState(myfile, cycleCounter);
                 }
             }

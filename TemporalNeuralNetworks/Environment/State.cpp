@@ -33,7 +33,7 @@ double State::getDisplacementDotDot() const
 
 double State::getAngle() const
 {
-	return angle / (2 * M_PI) * 360;
+	return angle * (180 / M_PI);
 }
 
 double State::getAngleRad() const
