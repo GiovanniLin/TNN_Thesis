@@ -97,7 +97,7 @@ std::vector<Layer> NetworkConfigurator::createLayers()
         std::vector<std::string> nextLine = networkConfig_.readNextLineSplit(" ");
         if (!nextLine.empty()) {
             Layer v = layerHandler(nextLine);
-            if (!v.neurons.empty()) {
+            if (!v.getNeurons().empty()) {
                 res.push_back(v);
             }
         }
@@ -279,7 +279,7 @@ Layer NetworkConfigurator::layerHandler(std::vector<std::string> v)
         throw std::runtime_error("Network configuration failed, FullConfigure was not set. Please make sure FullConfigure is set to Yes or No");
     }
     neuronCounter = 0;
-    numNeuronsPrevLayer = res.neurons.size();
+    numNeuronsPrevLayer = static_cast<int>(res.getNeurons().size());
     return res;
 }
 
@@ -361,9 +361,9 @@ std::vector<int> NetworkConfigurator::getEncoding(int ev, double value)
     }
 
     int res = 0;
-    for (int i = 0; i < ev; ++i) {
-        res += (intervals[i].size() - 1);
-    }
+    /*for (int i = 0; i < ev; ++i) {
+        res += (static_cast<int>(intervals[i].size()) - 1);
+    }*/
 
     for (int i = 0; i < intervals[ev].size() - 1; ++i) {
         if (i == intervals[ev].size() - 2) {

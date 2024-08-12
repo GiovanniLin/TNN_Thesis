@@ -16,6 +16,9 @@
 #include "../Environment/Environment.h"
 #include "WeightConfigurator.h"
 
+void runEpisodes(Environment& env, std::vector<Layer>& layers, NetworkConfigurator& networkConfig, STDPConfigurator& stdpConfig,
+	std::ofstream& myfile, bool inputs[], std::vector<std::tuple<int, int, int>> inputMap, std::vector<std::tuple<int, int, int>> layerMap);
+
 int run(
 	int cycles, 
 	std::vector<Layer>& layers,

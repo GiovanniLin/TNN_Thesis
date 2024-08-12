@@ -8,7 +8,6 @@
 class Layer
 {
 public:
-	std::vector<Neuron> neurons;
 	void addNeuron(Neuron neuron);
 	void setNeurons(std::vector<Neuron> v);
 	bool getWTA();
@@ -35,7 +34,11 @@ public:
 	int identifyWeightUpdateCTNN(int x, int z);
 	int identifyWeightUpdateRTNN(int r, int x, int z);
 	void resetNeurons();
+	const std::vector<Neuron>& getNeurons() const { return neurons; }
+	std::vector<Neuron>& getMutableNeurons() { return neurons; }
 private:
+	std::vector<Neuron> neurons;
+
 	bool wta = false;
 	int highestBodyPotential = -1;
 	int highestBodyPotentialIndex = -1;
