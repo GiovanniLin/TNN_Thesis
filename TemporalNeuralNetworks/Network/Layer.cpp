@@ -183,9 +183,9 @@ void Layer::updateWeights(STDPConfigurator& config, int reward)
 
 void Layer::initializeVectors(int x, int y)
 {
-	decayCounters.clear();
 	inputTime.clear();
 	outputTime.clear();
+	decayCounters.clear();
 	for (int i = 0; i < x; ++i) {
 		std::vector<int> toAddA;
 		for (int j = 0; j < y; ++j) {
@@ -198,6 +198,22 @@ void Layer::initializeVectors(int x, int y)
 		outputTime.push_back(-1);
 	}
 	incrementCounters();
+}
+
+void Layer::initializeVectorsNoDecay(int x, int y)
+{
+	inputTime.clear();
+	outputTime.clear();
+	for (int i = 0; i < x; ++i) {
+		std::vector<int> toAddA;
+		for (int j = 0; j < y; ++j) {
+			toAddA.push_back(-1);
+		}
+		inputTime.push_back(-1);
+	}
+	for (int i = 0; i < y; ++i) {
+		outputTime.push_back(-1);
+	}
 }
 
 void Layer::incrementCounters()

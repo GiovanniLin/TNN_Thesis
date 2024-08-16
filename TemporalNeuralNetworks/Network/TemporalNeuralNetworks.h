@@ -6,6 +6,7 @@
 #include <tuple>
 #include <vector>
 #include <variant>
+#include <chrono>
 #include "Neuron.h"
 #include "FileReader.h"
 #include "NetworkConfigurator.h"

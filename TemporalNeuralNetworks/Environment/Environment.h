@@ -3,6 +3,7 @@
 #include <iostream>
 #include <fstream>
 #include <limits>
+#include <chrono>
 #include "State.h"
 
 class Environment
@@ -18,6 +19,7 @@ public:
 	bool stepState(bool action);
 	void testMath();
 	void recordAvgCycles(const double cycles) { avgCycles.push_back(cycles); }
+	void recordAvgTime(const std::chrono::milliseconds time) { avgTime.push_back(time); }
 
 	bool getTrainingMode() const { return trainingMode; }
 	int getTrainingEpisodes() const { return trainingEpisodes; }
@@ -26,19 +28,20 @@ public:
 	int getCycleLimit() const { return cycleLimit; }
 	int getEpisodeResultsDump() const { return episodeResultDump; }
 	const std::vector<double>& getAvgCycles() const { return avgCycles; }
+	const std::vector<std::chrono::milliseconds>& getAvgTime() const { return avgTime; }
 private:
 	State state;
 
 	int simCycles = 10;
 	bool trainingMode = true;
-	int trainingEpisodes = 1;
+	int trainingEpisodes = 0;
 	int addRewardAfter = 1;
 	int testEpisodes = 50;
 	bool randomAngle = true;
-	int rewardCycleThreshold = 500;
-	int cycleLimit = 10000;
+	int rewardCycleThreshold = 1000;
+	int cycleLimit = 20000;
 	int episodeResultDump = 0;
 	std::vector<double> avgCycles;
-
+	std::vector<std::chrono::milliseconds> avgTime;
 };
 

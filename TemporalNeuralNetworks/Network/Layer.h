@@ -27,6 +27,7 @@ public:
 	void setWeights(std::vector<std::vector<double>> weights);
 	void updateWeights(STDPConfigurator& config, int reward);
 	void initializeVectors(int x, int y);
+	void initializeVectorsNoDecay(int x, int y);
 	void incrementCounters();
 	void setInputTime(int index, int value);
 	void setOutputTime(int index, int value);

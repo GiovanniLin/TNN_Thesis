@@ -211,11 +211,14 @@ int main()
     runEpisodes(env, layers, networkConfig, stdpConfig, myfile, inputs, inputMap, layerMap);
 
     double avgCycles = 0;
+    time_t avgTime = 0;
     for (int i = 0; i < env.getAvgCycles().size(); ++i) {
         avgCycles += env.getAvgCycles()[i];
+        avgTime += env.getAvgTime()[i].count();
     }
     std::cout << "All episodes simulated. Number of episodes: " << env.getAvgCycles().size() <<"\n";
     std::cout << "Average Number of succesfull cycles for seed " << env.getState().GetSeed() << ": " << (avgCycles / env.getAvgCycles().size()) << "\n";
+    std::cout << "Average time for seed " << env.getState().GetSeed() << ": " << (avgTime / env.getAvgTime().size()) << " milliseconds \n";
     std::cout << "Total Number of succesfull cycles for seed " << env.getState().GetSeed() << ": " << (avgCycles) << "\n\n";
 
 
@@ -256,7 +259,13 @@ void runEpisodes(Environment& env, std::vector<Layer>& layers, NetworkConfigurat
     int numInputs = networkConfig.getNumInputs();
 
     if (trainingMode) {
-        episodeLimit = env.getTrainingEpisodes();
+        if (env.getTrainingEpisodes() > 0) {
+            episodeLimit = env.getTrainingEpisodes();
+        }
+        else {
+            trainingMode = false;
+            episodeLimit = env.getTestEpisodes();
+        }
     }
     else
     {
@@ -265,14 +274,28 @@ void runEpisodes(Environment& env, std::vector<Layer>& layers, NetworkConfigurat
 
     env.resetState(env.useRandomAngle());
 
+    bool decayInit = true;
+    std::chrono::steady_clock::time_point startTime = std::chrono::high_resolution_clock::now();
+
     while (episodeCounter < episodeLimit) {
 
         for (int i = 0; i < layers.size(); ++i) {
             if (i == 0) {
-                layers[i].initializeVectors(numInputs, static_cast<int>(layers[i].getNeurons().size()));
+                if (decayInit == true) {
+                    layers[i].initializeVectors(numInputs, static_cast<int>(layers[i].getNeurons().size()));
+                }
+                else {
+                    layers[i].initializeVectorsNoDecay(numInputs, static_cast<int>(layers[i].getNeurons().size()));
+                }
             }
             else {
-                layers[i].initializeVectors(static_cast<int>(layers[i - 1].getNeurons().size()), static_cast<int>(layers[i].getNeurons().size()));
+                if (decayInit == true) {
+                    layers[i].initializeVectors(static_cast<int>(layers[i - 1].getNeurons().size()), static_cast<int>(layers[i].getNeurons().size()));
+                    decayInit = false;
+                }
+                else {
+                    layers[i].initializeVectorsNoDecay(static_cast<int>(layers[i - 1].getNeurons().size()), static_cast<int>(layers[i].getNeurons().size()));
+                }
             }
         }
 
@@ -346,16 +369,23 @@ void runEpisodes(Environment& env, std::vector<Layer>& layers, NetworkConfigurat
             std::cout << "Final State of the Environment: \n";
             env.printState();
 
-            std::cout << "Number of cycles simulated: " << (cycleCounter - 1) << " \n\n";
+            std::chrono::steady_clock::time_point endTime = std::chrono::high_resolution_clock::now();
+            std::chrono::milliseconds episodeTime = std::chrono::duration_cast<std::chrono::milliseconds>(endTime - startTime);
+            std::cout << "Number of cycles simulated: " << (cycleCounter - 1) << " \n";
+            std::cout << "Episode time: " << episodeTime.count() << " milliseconds \n\n";
+
             if (!trainingMode) {
+                env.recordAvgTime(episodeTime);
                 env.recordAvgCycles((double)(cycleCounter - 1));
                 if (episodeCounter == env.getEpisodeResultsDump()) {
                     env.writeState(myfile, cycleCounter);
                 }
+                startTime = std::chrono::high_resolution_clock::now();
             }
 
             std::cout << "End of episode " << episodeCounter << " \n\n";
             episodeCounter += 1;
+            decayInit = true;
             if (episodeCounter >= episodeLimit) {
                 if (trainingMode) {
                     trainingMode = false;
@@ -457,9 +487,11 @@ int run(
         resetSpikes(inputs, numInputs); // Falling edge of each spike, for spike validity
 
         for (int j = 0; j < layers.size(); j++) {
-            layers[j].incrementCounters();
             layers[j].removeOutputSpikes(); // Falling edge of each spike, for spike validity
         }
+    }
+    for (int j = 0; j < layers.size(); j++) {
+        layers[j].incrementCounters();
     }
     return res;
 }
