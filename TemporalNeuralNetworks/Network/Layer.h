@@ -19,6 +19,7 @@ public:
 	std::vector<int> getInputTime();
 	std::vector<int> getOutputTime();
 	std::vector<std::vector<int>> getDecayCounters();
+	std::vector<std::vector<bool>> getFlags() { return flags; }
 	void checkNeuronIFs();
 	void checkNeuronSpikes(int time);
 	void checkNeuronThresholds(int time);
@@ -48,5 +49,6 @@ private:
 	std::vector<std::vector<int>> decayCounters;
 	std::vector<int> inputTime;
 	std::vector<int> outputTime;
+	std::vector<std::vector<bool>> flags;
 };
 

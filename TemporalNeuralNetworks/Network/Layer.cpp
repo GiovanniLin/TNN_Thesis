@@ -185,14 +185,18 @@ void Layer::initializeVectors(int x, int y)
 {
 	inputTime.clear();
 	outputTime.clear();
+	flags.clear();
 	decayCounters.clear();
 	for (int i = 0; i < x; ++i) {
 		std::vector<int> toAddA;
+		std::vector<bool> toAddB;
 		for (int j = 0; j < y; ++j) {
 			toAddA.push_back(-1);
+			toAddB.push_back(false);
 		}
 		decayCounters.push_back(toAddA);
 		inputTime.push_back(-1);
+		flags.push_back(toAddB);
 	}
 	for (int i = 0; i < y; ++i) {
 		outputTime.push_back(-1);
@@ -271,17 +275,24 @@ int Layer::identifyWeightUpdateCTNN(int x, int z)
 // e is binary flag, true if x == z
 int Layer::identifyWeightUpdateRTNN(int r, int x, int z)
 {
-	bool e = inputTime[x] != -1 && outputTime[z] != -1;
-	if (r == 1 && e) {
+	if (!flags[x][z]) {
+		flags[x][z] = inputTime[x] != -1 && outputTime[z] != -1;
+	}
+	else {
+		if (inputTime[x] != -1 && outputTime[z] == -1) {
+			flags[x][z] = false;
+		}
+	}
+	if (r == 1 && flags[x][z]) {
 		return 0;
 	}
-	else if (r == 1 && !e) {
+	else if (r == 1 && !flags[x][z]) {
 		return 1;
 	}
-	else if (r == -1 && !e) {
+	else if (r == -1 && !flags[x][z]) {
 		return 2;
 	}
-	else if (r == -1 && e) {
+	else if (r == -1 && flags[x][z]) {
 		return 3;
 	}
 	else {

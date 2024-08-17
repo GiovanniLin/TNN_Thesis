@@ -317,14 +317,14 @@ void runEpisodes(Environment& env, std::vector<Layer>& layers, NetworkConfigurat
         std::vector<std::tuple<int, int>> spikes = createSpikesFromEncoding(encodingAngle);
         //std::cout << "\n";
 
-        int output = run(30, layers, inputs, inputMap, layerMap, numInputs, spikes);
+        int output = run(15, layers, inputs, inputMap, layerMap, numInputs, spikes);
 
         //if (output >= 0) {
         //    std::cout << "Spike from output: " << output << "\n\n";
         //}
         //else {
         //    std::cout << "No output spike, randomly generating a value. \n";
-        //    output = std::rand() % layers[layers.size() - 1].neurons.size();
+        //    output = std::rand() % layers[layers.size() - 1].getNeurons().size();
         //    std::cout << "Randomly generated output: " << output << "\n\n";
         //}
 
@@ -343,12 +343,25 @@ void runEpisodes(Environment& env, std::vector<Layer>& layers, NetworkConfigurat
         //    std::cout << "No reward \n\n";
         //}
 
-        if (trainingMode) {
-            for (int i = 0; i < layers.size(); ++i) {
-                //for (int j = 0; j < layers[i].neurons.size(); ++j) {
-                //    std::cout << "Final body potential of Layer " << i << " Neuron " << j << ": " << layers[i].neurons[j].currentBodyPotential() << " \n";
-                //}
+        //if (trainingMode) {
+        //    for (int i = 0; i < layers.size(); ++i) {
+        //        //for (int j = 0; j < layers[i].neurons.size(); ++j) {
+        //        //    std::cout << "Final body potential of Layer " << i << " Neuron " << j << ": " << layers[i].neurons[j].currentBodyPotential() << " \n";
+        //        //}
+        //        layers[i].updateWeights(stdpConfig, reward);
+        //    }
+        //}
+
+        for (int i = 0; i < layers.size(); ++i) {
+            //for (int j = 0; j < layers[i].neurons.size(); ++j) {
+            //    std::cout << "Final body potential of Layer " << i << " Neuron " << j << ": " << layers[i].neurons[j].currentBodyPotential() << " \n";
+            //}
+            try {
                 layers[i].updateWeights(stdpConfig, reward);
+            }
+            catch (std::runtime_error& e) {
+                std::cout << e.what();
+                return;
             }
         }
 

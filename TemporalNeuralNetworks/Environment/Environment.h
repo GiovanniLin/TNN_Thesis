@@ -34,12 +34,12 @@ private:
 
 	int simCycles = 10;
 	bool trainingMode = true;
-	int trainingEpisodes = 0;
-	int addRewardAfter = 1;
+	int trainingEpisodes = 20;
+	int addRewardAfter = 0;
 	int testEpisodes = 50;
 	bool randomAngle = true;
-	int rewardCycleThreshold = 1000;
-	int cycleLimit = 20000;
+	int rewardCycleThreshold = 500;
+	int cycleLimit = 10000;
 	int episodeResultDump = 0;
 	std::vector<double> avgCycles;
 	std::vector<std::chrono::milliseconds> avgTime;

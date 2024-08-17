@@ -15,7 +15,7 @@ public:
 	const double length = 0.326;
 	const double poleML = massPole * length;
 	const double forceMagnitude = 10.0;
-	const double tau = 0.01; // Timestep
+	const double tau = 0.02; // Timestep
 	const double angleThreshold = 12.0 * (M_PI / 180);
 	const double displacementThreshold = 2.4;
 	const double randLowerBound = -2;
