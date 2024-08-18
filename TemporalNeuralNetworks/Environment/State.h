@@ -39,7 +39,7 @@ public:
 	double randomAngle();
 	const int GetSeed() const { return seed; }
 private:
-	const int seed = 4; // 0 to 7
+	const int seed = 5; // 0 to 7
 	const bool euler = false;
 	std::uniform_real_distribution<double> unif;
 	std::default_random_engine re;

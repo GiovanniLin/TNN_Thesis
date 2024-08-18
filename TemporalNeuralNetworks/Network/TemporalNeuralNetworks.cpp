@@ -392,8 +392,9 @@ void runEpisodes(Environment& env, std::vector<Layer>& layers, NetworkConfigurat
                 env.recordAvgCycles((double)(cycleCounter - 1));
                 if (episodeCounter == env.getEpisodeResultsDump()) {
                     env.writeState(myfile, cycleCounter);
+                }
             }
-
+            
             std::cout << "End of episode " << episodeCounter << " \n\n";
             episodeCounter += 1;
             decayInit = true;
@@ -405,9 +406,9 @@ void runEpisodes(Environment& env, std::vector<Layer>& layers, NetworkConfigurat
                     std::cout << "Training ended, now going to test mode. \n\n";
                 }
             }
+            startTime = std::chrono::high_resolution_clock::now();
             env.resetState(env.useRandomAngle());
             cycleCounter = 0;
-            startTime = std::chrono::high_resolution_clock::now();
         }
 
 
