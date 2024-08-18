@@ -15,7 +15,7 @@ public:
 	const double length = 0.326;
 	const double poleML = massPole * length;
 	const double forceMagnitude = 10.0;
-	const double tau = 0.02; // Timestep
+	const double tau = 0.0025; // Timestep
 	const double angleThreshold = 12.0 * (M_PI / 180);
 	const double displacementThreshold = 2.4;
 	const double randLowerBound = -2;
@@ -39,7 +39,7 @@ public:
 	double randomAngle();
 	const int GetSeed() const { return seed; }
 private:
-	const int seed = 0; // 0 to 7
+	const int seed = 4; // 0 to 7
 	const bool euler = false;
 	std::uniform_real_distribution<double> unif;
 	std::default_random_engine re;
