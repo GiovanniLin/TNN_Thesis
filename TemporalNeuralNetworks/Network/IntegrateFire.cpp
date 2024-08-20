@@ -80,7 +80,7 @@ bool RampIntegrateFire::getSpikeFlag(int index)
 
 void RampIntegrateFire::resetPotential()
 {
-	for (int i = 0; i < rifCounter.size(); ++i) {
+	for (size_t i = 0; i < rifCounter.size(); ++i) {
 		rifCounter[i] = 0;
 	}
 	resetAllSpikeFlag();
