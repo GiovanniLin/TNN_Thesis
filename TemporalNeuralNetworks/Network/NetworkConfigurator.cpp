@@ -24,7 +24,7 @@ NetworkConfigurator::NetworkConfigurator(std::string networkConfig) : networkCon
 
     createIntervals();
 
-    for (int i = 0; i < intervals.size(); ++i) {
+    for (size_t i = 0; i < intervals.size(); ++i) {
         if (intervals[i].empty()) {
             throw std::runtime_error("Network configuration failed, one of the encoding intervals was not set");
         }
@@ -102,7 +102,7 @@ std::vector<Layer> NetworkConfigurator::createLayers()
             }
         }
     }
-    if (res.size() > numLayers) {
+    if (static_cast<int>(res.size()) > numLayers) {
         throw std::runtime_error("Network configuration failed, layers not set or too many layers");
     }
 
@@ -298,7 +298,7 @@ void NetworkConfigurator::createIntervals()
         }
     }
 
-    int variableCounter = 0;
+    size_t variableCounter = 0;
 
     while (networkConfig_.isNextLine() && keepReading) {
         int intervalCounter = 0;
@@ -356,7 +356,7 @@ void NetworkConfigurator::createIntervals()
 
 std::vector<int> NetworkConfigurator::getEncoding(int ev, double value)
 {
-    if (ev >= intervals.size()) {
+    if (ev >= static_cast<int>(intervals.size())) {
         throw std::runtime_error("Get Encoding failed, Environment Variable out of bounds");
     }
 
@@ -365,7 +365,7 @@ std::vector<int> NetworkConfigurator::getEncoding(int ev, double value)
         res += (static_cast<int>(intervals[i].size()) - 1);
     }*/
 
-    for (int i = 0; i < intervals[ev].size() - 1; ++i) {
+    for (int i = 0; i < static_cast<int>(intervals[ev].size()) - 1; ++i) {
         if (i == intervals[ev].size() - 2) {
             if (intervals[ev][i] <= value && value <= intervals[ev][i + 1]) {
                 res += i;

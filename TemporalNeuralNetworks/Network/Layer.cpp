@@ -57,7 +57,7 @@ std::vector<std::vector<int>> Layer::getDecayCounters()
 
 void Layer::checkNeuronIFs()
 {
-	for (int i = 0; i < neurons.size(); ++i) {
+	for (size_t i = 0; i < neurons.size(); ++i) {
 		//std::cout << "Neuron: " << i << ", ";
 		neurons[i].checkForIF();
 	}
@@ -66,21 +66,21 @@ void Layer::checkNeuronIFs()
 
 void Layer::checkNeuronSpikes(int time)
 {
-	for (int i = 0; i < neurons.size(); ++i) {
+	for (size_t i = 0; i < neurons.size(); ++i) {
 		neurons[i].checkForSpike();
 	}
 }
 
 void Layer::checkNeuronThresholds(int time)
 {
-	for (int i = 0; i < neurons.size(); ++i) {
+	for (size_t i = 0; i < neurons.size(); ++i) {
 		// Only check thresholds, if no output spike has been generated yet (no winner yet)
 		if (!wta) {
 			neurons[i].checkThreshold();
 		}
 	}
 
-	for (int i = 0; i < neurons.size(); ++i) {
+	for (int i = 0; i < static_cast<int>(neurons.size()); ++i) {
 		// If an output spike is produced
 		if (neurons[i].output) {
 			// Set WTA to true, because an output spike has been generated
@@ -111,7 +111,7 @@ void Layer::checkNeuronThresholds(int time)
 		}
 	}
 
-	for (int i = 0; i < neurons.size(); ++i) {
+	for (int i = 0; i < static_cast<int>(neurons.size()); ++i) {
 		if (neurons[i].output) {
 			setOutputTime(i, time);
 		}
@@ -123,7 +123,7 @@ std::vector<int> Layer::checkOutputs()
 {
 	std::vector<int> res;
 
-	for (int i = 0; i < neurons.size(); ++i) {
+	for (int i = 0; i < static_cast<int>(neurons.size()); ++i) {
 		if (neurons[i].output) {
 			res.push_back(i);
 		}
@@ -134,14 +134,14 @@ std::vector<int> Layer::checkOutputs()
 
 void Layer::removeOutputSpikes()
 {
-	for (int i = 0; i < neurons.size(); ++i) {
+	for (size_t i = 0; i < neurons.size(); ++i) {
 		neurons[i].removeOutputSpike();
 	}
 }
 
 void Layer::setWeights(std::vector<std::vector<double>> weights) {
-	for (int i = 0; i < neurons.size(); ++i) {
-		for (int j = 0; j < neurons[i].inputs.size(); ++j) {
+	for (size_t i = 0; i < neurons.size(); ++i) {
+		for (int j = 0; j < static_cast<int>(neurons[i].inputs.size()); ++j) {
 			//std::cout << "Current weight of Neuron " << i << ", Input " << j << ", Weight: " << neurons[i].inputs[j]->getWeight() << "\n";
 			//std::cout << "Setting weight for Neuron " << i << ", Input " << j << ", Weight: " << weights[i][j] << "\n\n";
 			neurons[i].setWeight(j, weights[i][j]);
@@ -151,8 +151,8 @@ void Layer::setWeights(std::vector<std::vector<double>> weights) {
 
 void Layer::updateWeights(STDPConfigurator& config, int reward)
 {
-	for (int i = 0; i < neurons.size(); ++i) {
-		for (int j = 0; j < neurons[i].inputs.size(); ++j) {
+	for (int i = 0; i < static_cast<int>(neurons.size()); ++i) {
+		for (int j = 0; j < static_cast<int>(neurons[i].inputs.size()); ++j) {
 			int operation = -1;
 			if (typeTNN == 0) {
 				operation = identifyWeightUpdateCTNN(j, i);
@@ -222,8 +222,8 @@ void Layer::initializeVectorsNoDecay(int x, int y)
 
 void Layer::incrementCounters()
 {
-	for (int i = 0; i < decayCounters.size(); ++i) {
-		for (int j = 0; j < decayCounters[i].size(); ++j) {
+	for (size_t i = 0; i < decayCounters.size(); ++i) {
+		for (size_t j = 0; j < decayCounters[i].size(); ++j) {
 			decayCounters[i][j] += 1;
 		}
 	}
@@ -241,7 +241,7 @@ void Layer::setOutputTime(int index, int value)
 
 void Layer::resetCounters(int index)
 {
-	for (int i = 0; i < decayCounters[index].size(); ++i) {
+	for (size_t i = 0; i < decayCounters[index].size(); ++i) {
 		decayCounters[index][i] = 0;
 	}
 }
@@ -302,7 +302,7 @@ int Layer::identifyWeightUpdateRTNN(int r, int x, int z)
 
 void Layer::resetNeurons()
 {
-	for (int i = 0; i < neurons.size(); ++i) {
+	for (size_t i = 0; i < neurons.size(); ++i) {
 		neurons[i].resetNeuron();
 	}
 	wta = false;

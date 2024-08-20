@@ -11,7 +11,7 @@ void printNetworkConfig(NetworkConfigurator& networkConfig, std::vector<Layer>& 
     std::cout << "Network Configuration: \n";
     std::cout << INDENT << "Number of Inputs: " << networkConfig.getNumInputs() << "\n";
     std::cout << INDENT << "Number of Layers: " << networkConfig.getNumLayers() << " \n";
-    for (int i = 0; i < layers.size(); ++i) {
+    for (size_t i = 0; i < layers.size(); ++i) {
         if (layers[i].getTypeTNN() == 0) {
             std::cout << INDENT << "Layer " << i << " Type: C-TNN \n";
         }
@@ -32,9 +32,9 @@ void printNetworkConfig(NetworkConfigurator& networkConfig, std::vector<Layer>& 
     std::cout << INDENT << "Environment Variables: " << networkConfig.getIntervals().size() << "\n";
     std::cout << INDENT << "m-Hot Code: " << networkConfig.getMHotCode() << "\n";
     std::cout << INDENT << "Encoding Intervals: \n";
-    for (int i = 0; i < networkConfig.getIntervals().size(); ++i) {
+    for (size_t i = 0; i < networkConfig.getIntervals().size(); ++i) {
         std::cout << INDENT << INDENT << "Environment Variable " << i << ": [";
-        for (int j = 0; j < networkConfig.getIntervals()[i].size(); ++j) {
+        for (size_t j = 0; j < networkConfig.getIntervals()[i].size(); ++j) {
             if (j + 1 == networkConfig.getIntervals()[i].size()) {
                 std::cout << networkConfig.getIntervals()[i][j];
             }
@@ -65,6 +65,7 @@ void printStdpConfig(STDPConfigurator& stdpConfig)
 
 int main()
 {
+    try {
     Environment env;
     env.testPrint();
 
@@ -73,7 +74,8 @@ int main()
     myfile << "Cycle, Angle, AngleDot, AngleDotDot, Displacement, DisplacementDot, DisplacementDotDot\n";
 
     std::cout << "Reading Network Configuration \n";
-    NetworkConfigurator networkConfig("network_config.txt");
+   
+   NetworkConfigurator networkConfig("network_config.txt");
 
     std::cout << "Creating network layers \n\n";
     std::vector<Layer> layers;
@@ -89,7 +91,7 @@ int main()
 
     bool readWeights = false;
 
-    for (int i = 0; i < layers.size(); ++i) {
+    for (size_t i = 0; i < layers.size(); ++i) {
         if (layers[i].getReadWeights()) {
             readWeights = true;
             break;
@@ -189,7 +191,7 @@ int main()
         WeightConfigurator weightConfig("weight_config.txt");
         weightConfig.readWeights(layers);
         std::vector<std::vector<std::vector<double>>> weights = weightConfig.getWeights();
-        for (int i = 0; i < layers.size(); ++i) {
+        for (size_t i = 0; i < layers.size(); ++i) {
             if (layers[i].getReadWeights()) {
                 //std::cout << "Setting Weights for Layer " << i << "\n\n";
                 layers[i].setWeights(weights[i]);
@@ -212,7 +214,7 @@ int main()
 
     double avgCycles = 0;
     time_t avgTime = 0;
-    for (int i = 0; i < env.getAvgCycles().size(); ++i) {
+    for (size_t i = 0; i < env.getAvgCycles().size(); ++i) {
         avgCycles += env.getAvgCycles()[i];
         avgTime += env.getAvgTime()[i].count();
     }
@@ -222,7 +224,7 @@ int main()
     std::cout << "Total Number of succesfull cycles for seed " << env.getState().GetSeed() << ": " << (avgCycles) << "\n\n";
 
 
-    for (int i = 0; i < layers.size(); ++i) {
+    for (size_t i = 0; i < layers.size(); ++i) {
         //for (int j = 0; j < layers[i].getInputTime().size(); j++) {
         //    std::cout << "Input spike on Layer " << i << " on input " << j << " at time " << layers[i].getInputTime()[j] << " \n";
         //}
@@ -234,8 +236,8 @@ int main()
         //        std::cout << "Decay counter on Layer " << i << " Input " << j << " Neuron " << k << ": " << layers[i].getDecayCounters()[j][k] << " \n";
         //    }
         //}
-        for (int j = 0; j < layers[i].getNeurons().size(); ++j) {
-            for (int k = 0; k < layers[i].getNeurons()[j].inputs.size(); ++k) {
+        for (size_t j = 0; j < layers[i].getNeurons().size(); ++j) {
+            for (size_t k = 0; k < layers[i].getNeurons()[j].inputs.size(); ++k) {
                 std::cout << "Final weight of Layer " << i << " Neuron " << j << " Input " << k << " : " << layers[i].getNeurons()[j].inputs[k]->getWeight() << " \n";
             }
         }
@@ -247,6 +249,12 @@ int main()
     delete[] inputs;
 
     return 0;
+    }
+    catch (std::exception e)
+    {
+        std::cerr << e.what() << std::endl;
+        exit(-1);
+    }
 }
 
 void runEpisodes(Environment& env, std::vector<Layer>& layers, NetworkConfigurator& networkConfig, STDPConfigurator& stdpConfig,
@@ -279,7 +287,7 @@ void runEpisodes(Environment& env, std::vector<Layer>& layers, NetworkConfigurat
 
     while (episodeCounter < episodeLimit) {
 
-        for (int i = 0; i < layers.size(); ++i) {
+        for (size_t i = 0; i < layers.size(); ++i) {
             if (i == 0) {
                 if (decayInit == true) {
                     layers[i].initializeVectors(numInputs, static_cast<int>(layers[i].getNeurons().size()));
@@ -352,7 +360,7 @@ void runEpisodes(Environment& env, std::vector<Layer>& layers, NetworkConfigurat
         //    }
         //}
 
-        for (int i = 0; i < layers.size(); ++i) {
+        for (size_t i = 0; i < layers.size(); ++i) {
             //for (int j = 0; j < layers[i].neurons.size(); ++j) {
             //    std::cout << "Final body potential of Layer " << i << " Neuron " << j << ": " << layers[i].neurons[j].currentBodyPotential() << " \n";
             //}
@@ -413,7 +421,7 @@ void runEpisodes(Environment& env, std::vector<Layer>& layers, NetworkConfigurat
 
 
         resetSpikes(inputs, numInputs);
-        for (int i = 0; i < layers.size(); ++i) {
+        for (size_t i = 0; i < layers.size(); ++i) {
             layers[i].resetNeurons();
         }
     }
@@ -433,7 +441,7 @@ int run(
 
     std::vector<std::reference_wrapper<const bool>> finalOutput;
 
-    for (int i = 0; i < layers[layers.size() - 1].getNeurons().size(); ++i) {
+    for (size_t i = 0; i < layers[layers.size() - 1].getNeurons().size(); ++i) {
         finalOutput.push_back(layers[layers.size() - 1].getNeurons()[i].output);
     }
 
@@ -458,7 +466,7 @@ int run(
             }
         }
 
-        for (int j = 0; j < layers.size(); j++) {
+        for (size_t j = 0; j < layers.size(); j++) {
             layers[j].checkNeuronIFs();
             layers[j].checkNeuronSpikes(i);
             layers[j].checkNeuronThresholds(i);
@@ -482,7 +490,7 @@ int run(
         //    }
         //}
 
-        for (int j = 0; j < finalOutput.size(); ++j) {
+        for (int j = 0; j < static_cast<int>(finalOutput.size()); ++j) {
             if (finalOutput[j]) {
                 res = j;
                 //std::cout << "Output from Layer " << (layers.size() - 1) << " Neuron " << j << " \n";
@@ -498,11 +506,11 @@ int run(
 
         resetSpikes(inputs, numInputs); // Falling edge of each spike, for spike validity
 
-        for (int j = 0; j < layers.size(); j++) {
+        for (size_t j = 0; j < layers.size(); j++) {
             layers[j].removeOutputSpikes(); // Falling edge of each spike, for spike validity
         }
     }
-    for (int j = 0; j < layers.size(); j++) {
+    for (size_t j = 0; j < layers.size(); j++) {
         layers[j].incrementCounters();
     }
     return res;
@@ -597,7 +605,7 @@ void fireSpikes(std::vector<std::vector<int>> spikes, bool inputs[], int time)
 
 void resetSpikes(bool inputs[], int numInputs)
 {
-    for (size_t i = 0; i < numInputs; i++) {
+    for (int i = 0; i < numInputs; i++) {
         inputs[i] = false;
     }
 }
@@ -605,7 +613,7 @@ void resetSpikes(bool inputs[], int numInputs)
 std::vector<std::tuple<int, int>> createSpikesFromEncoding(std::vector<int> encoding)
 {
     std::vector<std::tuple<int, int>> res;
-    for (int i = 0; i < encoding.size(); ++i) {
+    for (size_t i = 0; i < encoding.size(); ++i) {
         res.push_back(std::make_tuple(encoding[i], 0));
     }
 

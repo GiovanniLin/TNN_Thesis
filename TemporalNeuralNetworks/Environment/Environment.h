@@ -34,8 +34,8 @@ private:
 
 	int simCycles = 10;
 	bool trainingMode = true;
-	int trainingEpisodes = 0;
-	int addRewardAfter = 50;
+	int trainingEpisodes = 20;
+	int addRewardAfter = 0;
 	int testEpisodes = 50;
 	bool randomAngle = true;
 	int rewardCycleThreshold = 4000;
